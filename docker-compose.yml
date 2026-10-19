@@ -1,0 +1,11 @@
+services:
+  api:
+    build: ./backend
+    ports: ["8000:8000"]
+    environment:
+      DB_PATH: /data/screenings.db
+      MODEL_PATH: /data/model.json
+      CORS_ORIGINS: http://localhost:5173
+    volumes: ["niramaya-data:/data"]
+volumes:
+  niramaya-data:
