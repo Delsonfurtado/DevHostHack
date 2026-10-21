@@ -1,0 +1,10 @@
+[
+  {"name":"routine", "input":{"consent":true}, "category":"routine", "codes":["no_suspicious_finding"]},
+  {"name":"habit", "input":{"consent":true,"habits":[{"active":true,"timesPerDay":2,"years":3}]}, "category":"high_risk", "codes":["habit_no_visible_lesion"]},
+  {"name":"white patch referral", "input":{"consent":true,"findings":[{"type":"white","persistent":true}]}, "category":"refer", "codes":["persistent_white_patch"]},
+  {"name":"urgent overrides referral", "input":{"consent":true,"habits":[{"active":true}],"findings":[{"type":"white","persistent":true},{"type":"red"}]}, "category":"urgent", "codes":["persistent_white_patch","red_patch"]},
+  {"name":"ulcer exactly 14 days is not urgent", "input":{"consent":true,"findings":[{"type":"ulcer","ulcerDays":14}]}, "category":"refer", "codes":["other_visible_finding"]},
+  {"name":"ulcer over 14 days", "input":{"consent":true,"findings":[{"type":"ulcer","ulcerDays":15}]}, "category":"urgent", "codes":["ulcer_over_2_weeks"]},
+  {"name":"no consent", "input":{"consent":false,"findings":[{"type":"red"}]}, "category":null, "codes":[]},
+  {"name":"multiple lesions", "input":{"consent":true,"findings":[{"type":"white","persistent":true},{"type":"lump","size":"lt1"}]}, "category":"urgent", "codes":["persistent_white_patch","lump_or_growth"]}
+]

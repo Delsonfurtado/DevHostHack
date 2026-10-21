@@ -1,11 +1,31 @@
 services:
   api:
     build: ./backend
-    ports: ["8000:8000"]
+    ports: ['8000:8000']
     environment:
       DB_PATH: /data/screenings.db
       MODEL_PATH: /data/model.json
-      CORS_ORIGINS: http://localhost:5173
-    volumes: ["niramaya-data:/data"]
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env before starting the API}
+      APP_ENV: development
+    command: ['sh', '-c', 'python seed_demo.py && uvicorn app.main:app --host 0.0.0.0 --port 8000']
+    volumes: ['niramaya-data:/data']
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'python',
+          '-c',
+          "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+  frontend:
+    build: .
+    ports: ['5173:80']
+    depends_on:
+      api:
+        condition: service_healthy
 volumes:
   niramaya-data:

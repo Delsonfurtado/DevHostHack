@@ -1,106 +1,146 @@
-# Niramaya — browser-only anaemia screening decision-support aid
+# Niramaya ? system overview
 
-## Brand options
+Niramaya is a prototype for supporting anaemia and oral screening conversations in primary health care settings. It is a **screening aid only, never a diagnosis**. Use clinician judgement and locally approved pathways; do not make care decisions from a demo estimate or a rule result.
 
-1. **Niramaya** (selected) — “A clearer next step.” Draws on *nirāmaya*, meaning free from illness/well-being; easy to say and not a government scheme name.
-2. **RaktaSetu** — “A bridge from screening to care.” Suggests a practical connection between a first check and follow-up.
-3. **Sahaaya** — “Support for the next step.” Short, warm, and grounded in the idea of assistance.
-
-Niramaya is used throughout this prototype. It is a screening support tool, not a diagnostic device. No performance or clinical accuracy claim is made for the included demo estimator.
-
-## Project tree
+## Portals and project layout
 
 ```text
-backend/
-  app/main.py                 FastAPI API, image features and SQLite audit log
-  training/features.py        Shared ROI and six-feature definition
-  training/train.py           Patient-grouped 5-fold Ridge training/export
-  tests/test_core.py          Zone, bands, quality and feature parity tests
-  requirements.txt
-  Dockerfile
-src/main.jsx                  React screens and PWA interface
-src/style.css                 Responsive light/dark styles and reduced motion
-public/manifest.webmanifest   Installable app metadata
-public/sw.js                  Offline app-shell cache
-docker-compose.yml
-index.html, package.json, vite.config.js
+.
+??? src/
+?   ??? main.jsx                    React Router entry, login, route guards, public self-check
+?   ??? client/                     Mobile client portal and retained legacy demo flow
+?   ??? admin/                      Service oversight, users, review, reports, master data
+?   ??? shared/                     API/auth, role guard, i18n, IndexedDB queue, shared styles/types
+?   ??? OralScreening.jsx            Existing oral questionnaire and rule-based triage
+?   ??? oralTriage.js                Shared JS oral triage rules
+?   ??? style.css                    Legacy demo styles
+??? backend/
+?   ??? app/main.py                  FastAPI routes, RBAC middleware, SQLite access
+?   ??? app/security.py              bcrypt passwords and signed access/refresh tokens
+?   ??? migrations/001_portal_schema.sql
+?   ??? seed_demo.py                 Synthetic development users and records
+?   ??? training/                    Research-only image feature extractor and trainer
+?   ??? tests/                       API, auth, sync, feature and rule-contract tests
+?   ??? requirements.txt
+?   ??? Dockerfile
+??? shared/oral_triage_cases.json    JS/Python shared triage cases
+??? deploy/nginx.conf                SPA fallback and same-origin API proxy
+??? Dockerfile                       Frontend build and Nginx runtime
+??? docker-compose.yml               Frontend, API and persistent SQLite volume
+??? .env.example
+??? README.md
 ```
 
-## Run locally (client-only)
+### Client portal
 
-Requires Node 18+. The user-facing app has no runtime API or server dependency. Photo checks and the explicitly untrained demo estimate run in the browser; screening metadata and lab follow-up values stay in that browser's local storage. Images are processed in memory and never written to storage.
+`/app/*` is for the authenticated health-worker role. It has a responsive home dashboard, consent-first two-step screening form, pseudonymous patient list and timeline, referral tracker with QR/print/read-aloud actions, learning cards, facility directory, announcements, follow-up reminders, settings, and the retained legacy demonstration screens. The new anaemia wizard records an illustrative workflow only; it does not calculate Hb. The oral wizard uses the existing rule-based triage code. Photos are not part of the new wizard.
 
-```bash
-npm install
+Screening drafts stay in this browser. Completed records go to the API when online or to IndexedDB when offline. Sync retries use a stable client key; the API treats repeated keys idempotently. A village assignment is checked on the server. The client shows pending count and last successful sync. The service worker caches the app shell but bypasses `/api/` so authenticated health data is not written into Cache Storage.
+
+A one-time local import is offered from Settings. Only legacy rows with an explicit consent field are eligible. Imported values are reduced to pseudonymous demo records; old Hb values and other measurements are discarded. Rows without consent are left in the old browser store for review or local deletion. The legacy anaemia and oral flows remain available during transition.
+
+`/self-check` is public and does not call the API or save responses. It provides basic mouth-check and anaemia symptom information and directs people to clinical care. It is not a diagnostic tool.
+
+### Admin portal
+
+`/admin/*` is a separate desktop-first service-oversight portal for admin and superadmin roles. It includes an activity dashboard with date, village and screening-type filters; small-count reliability notes; user creation, disable and password reset; screening review, oral specialist outcome and lab reconciliation; referral status updates; village/facility management; CSV/print reports; announcements; audit log; and system settings. Image uploads default to disabled and may only be enabled by a superadmin who records a privacy review. Model uploads also require an explicit clinical review field.
+
+The admin UI is a working prototype, not the full specification. Threshold editing/version approval, complete master-data workflows, multilingual announcement authoring/read-rate reports, backup/retention controls, robust report templates and operational analytics still need work.
+
+## Local development
+
+Requires Node.js 22 (or a compatible current Node release) and Python 3.11+.
+
+```powershell
+npm ci
 npm run dev
 ```
 
-Open the Vite address shown in the terminal (normally http://localhost:5173). The browser must be served on localhost or HTTPS for camera/PWA features. Records belong to this browser profile and are not synchronized or encrypted. Clearing this browser's site data removes them. Do not enter identifying information on shared devices.
+In a second terminal, start the API and seed synthetic data:
 
-## WHO thresholds
-
-The displayed thresholds (g/dL) follow the values in the brief: child 6–59 months 11/10/7, child 5–11 years 11.5/11/8, age 12–14 years 12/11/8, non-pregnant woman 12/11/8, pregnant woman 11/10/7, man 13/11/8 (anaemia/moderate/severe). **Verify against latest WHO guidance and applicable local protocols before use.** Age/sex/pregnancy-specific interpretation and altitude or other adjustments are not implemented.
-
-## Optional research trainer
-
-No dataset or trained model is bundled. Use only a dataset whose license, consent, image provenance, patient-level identifiers, and laboratory Hb labels are suitable for your research. A CSV must include `image_path,patient_id,hb`; paths must resolve in the training environment. On Colab, upload the dataset and script, install `pandas scikit-learn pillow numpy`, then run:
-
-```bash
-cd backend/training
-python train.py --csv /content/labels.csv --out ../model.json
+```powershell
+cd backend
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+$env:JWT_SECRET = python -c "import secrets; print(secrets.token_urlsafe(48))"
+$env:APP_ENV = "development"
+python seed_demo.py
+uvicorn app.main:app --reload --port 8000
 ```
 
-The trainer uses 5-fold `GroupKFold` by patient ID and exports ridge coefficients, error interval, and held-out metrics. It requires at least five distinct patients. Review label quality, leakage, site/device variation, subgroup sample sizes, calibration, and prospective safety before interpreting metrics. AUROC uses the trainer's fixed 12 g/dL analysis threshold and is not a clinical performance claim. The subgroup table remains explicitly unreported until a sound subgroup evaluation is added.
+Vite proxies `/api` to `http://localhost:8000`. The seed script prints the development-only credentials. The demo accounts require a password change at first sign-in. Seed data is synthetic and labelled demo data; do not enter real patient records.
 
-The current client-only UI always uses the explicitly untrained demo estimator. Loading and using a trained model in the browser has not been implemented; exported coefficients are for research and parity work only.
+To run the three local containers, copy `.env.example` to `.env`, replace `JWT_SECRET` with a newly generated secret, then run:
 
-The ROI is normalized `(0.20, 0.35, 0.60, 0.40)`. Feature order: normalized mean R, G, B followed by R/(G+1e-6), R/(B+1e-6), G/(B+1e-6). The backend and trainer share this contract and a parity test guards it.
+```powershell
+docker compose up --build
+```
 
-## Deployment outline
+Open `http://localhost:5173`. The API is also exposed on port 8000 for local development. This HTTP setup is for localhost only. Any shared deployment needs HTTPS at a trusted reverse proxy, restricted network exposure, managed secrets and a security review. The compose setup uses SQLite on a persistent named volume; it is not a managed production database.
 
-- **Frontend:** deploy the repository to Vercel or Netlify with build command `npm run build` and publish directory `dist`. Configure SPA fallback to `/index.html` and serve over HTTPS. No API origin or backend deployment is needed for this client-only version.
-- Free-tier limits and deployment settings change; check the host's current documentation. Add authentication, authorization, encryption, retention controls, operational monitoring, and local clinical governance before handling real records.
+Demo usernames are `demo.worker`, `demo.admin` and `demo.superadmin`; the seed command prints the shared demo-only temporary password. Do not use these accounts outside development. To seed manually, run `python seed_demo.py` from `backend/` with `APP_ENV=development`.
 
-## Optional API reference
+## Authentication, roles and API routes
 
-- The `backend/` directory is a standalone prototype/reference API and is not used by the client-only UI. Its quality endpoint checks sharpness, brightness, glare and coarse tissue-colour. Tissue detection is only a weak colour proxy.
-- `POST /api/screen`: consented photo, group and symptoms; applies the quality gate, estimate, interval, zone, and audit log.
-- `GET/PUT /api/model`, `GET /api/logs`, `POST /api/logs/{id}/lab`, `GET /api/stats`, `GET /api/groups`, `GET /api/health`.
-- Red: danger sign or `(estimate + interval half-width) < threshold`; green: `(estimate - half-width) > threshold`; otherwise amber/abstain. Symptoms apply small heuristic reductions and are not validated.
+Passwords use bcrypt. Login returns a short-lived signed access token and a refresh token. The API checks roles on every `/api/*` route except health, public group-reference and authentication entry routes. Login has an in-memory per-IP throttle and per-account lockout after repeated failures. Tokens and session state are held in browser `sessionStorage`. Password changes and role changes are written to the audit log. API responses are marked `no-store`; the service worker never caches API responses.
 
-## Tests and backend reference
+| Role         | Access                                                                                                                      |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| `client`     | Own client dashboard and patient/referral views; create consented screenings; sync only for assigned village; no admin APIs |
+| `admin`      | Admin dashboards, reports, user and service data, review outcomes and audit log; cannot create/reset administrator accounts |
+| `superadmin` | Admin access plus administrator account operations, model replacement and photo-upload setting                              |
 
-`cd backend && pytest` runs the optional Python reference API's tests. The suite covers zone boundaries/danger signs, severity band boundaries, blank-image quality rejection, and backend/trainer feature parity. The offline browser app does not need Python.
+| Route                                                                          | Access                                                                  | Purpose                                                                                                       |
+| ------------------------------------------------------------------------------ | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `POST /api/auth/login`, `POST /api/auth/refresh`                               | Public credential/token check                                           | Sign in and refresh session                                                                                   |
+| `GET /api/auth/me`, `POST /api/auth/change-password`                           | Authenticated                                                           | Session identity and forced password change                                                                   |
+| `GET /api/health`, `GET /api/groups`                                           | Public                                                                  | Service status and reference groups (not clinical approval)                                                   |
+| `GET /api/client/*`, `POST /api/sync`                                          | Client (some read views also admin)                                     | Client dashboard, pseudonymous patients, follow-ups, referrals, announcements, facilities and idempotent sync |
+| `POST /api/oral/screen`                                                        | Client                                                                  | Consent-gated rule-based oral record                                                                          |
+| `POST /api/quality`, `POST /api/screen`                                        | Client; photo setting must be enabled                                   | Optional legacy API image workflow; disabled by default                                                       |
+| `/api/admin/*`                                                                 | Admin or superadmin; selected settings/model operations superadmin only | Users, analytics, facilities, review, reports, announcements, audit, settings                                 |
+| `/api/logs*`, `/api/stats`, `/api/model`, `/api/oral/logs*`, `/api/oral/stats` | Admin or superadmin                                                     | Retained reference/legacy backend routes                                                                      |
 
-## Three-minute demo script
+All screening writes require consent. The sync schema accepts only pseudonymous patient code, village, age band, sex, screening type and bounded screening payload fields; it rejects extra fields. Photos are not stored. If a superadmin enables the explicit legacy photo setting after recording a review, image processing remains in memory and still does not persist the image.
 
-**0:00–0:30** — “Niramaya helps an ANM or ASHA worker structure a screening conversation at a PHC. It is not a diagnostic device. No patient image is retained.” Point out the disclaimer and language controls.
+## Database and offline sync
 
-**0:30–1:10** — Select a patient group and village, explain/tick consent, choose a sample eyelid image, and show the quality chips and retake instructions. Explain that the tissue signal is a coarse image check, not anatomical verification.
+SQLite schema changes are in `backend/migrations/`; `schema_version` records the applied schema baseline. Tables include users, villages, facilities, patients, screenings, oral_screenings, referrals, follow_ups, lab_results, announcements, announcement_reads, audit_log, settings and sync receipts/keys. Existing `logs` and `oral_logs` are retained for the original reference API.
 
-**1:10–1:50** — Mark a symptom and run the screen. Explain the estimate interval, group threshold, and why an overlapping interval abstains as amber. Show a danger sign forcing urgent red routing. Do not describe the demo heuristic as accurate.
+Each offline record has a random `client_key`. The client keeps it in IndexedDB and sends it in a batch after connectivity returns. The server enforces village assignment, validates consent and fields, and uses a unique key to make retries safe. The browser removes a queued item only after an accepted response. If the user is offline during startup, the last session identity is used to access the local queue; server data stays unavailable until online authentication succeeds.
 
-**1:50–2:25** — Show the audit record, add a hypothetical confirmed lab Hb, and open the area dashboard. Explain that summaries are local operations indicators and not population prevalence.
+## Clinical, legal and privacy limits
 
-**2:25–3:00** — Open the model card and show “Heuristic demo (NOT trained).” Describe the intended patient-level CV training workflow and say the prototype has no clinical validation. Close with the needed confirmatory test and clinician judgement.
+- The browser legacy Hb value is fixed fictional sample data. The new anaemia wizard records no estimate. The optional image heuristic and research trainer are not validated clinical methods.
+- Oral screening is rule-based and demonstrative. Thresholds, referral zones, symptoms and rules need review against current WHO / NP-NCD guidance and local protocols. No accuracy claim is made.
+- Demo records are synthetic. Pseudonymous codes are still sensitive health data. Do not use real people or identifiers in this prototype.
+- The local prototype has no clinical governance process, full retention/deletion implementation, tested backups, production intrusion monitoring, signed deployment process, revocable refresh sessions, or external identity verification. Login throttling is in-process and does not replace a production rate limiter.
+- SQLite and HTTP compose are local-development choices. HTTPS, secure deployment secrets, key rotation, access review, database backup and disaster recovery need deployment work.
+- Offline IndexedDB and session storage are not encrypted by this app. Local device protection and a retention/deletion policy are required before operational use.
+- Admin audit events record successful authenticated API access and changes, but this is not a tamper-proof audit system. No authentication package or application security review makes this production-ready.
+- Model metadata cannot be loaded unless `clinically_reviewed` and a documented review note are supplied. That field is a gate in the prototype, not proof of clinical safety.
 
-## Eight-slide pitch outline
+### Expert review required before any real use
 
-1. **Need:** rural PHC workers need a clear next action when anaemia is suspected.
-2. **Users and setting:** ANM/ASHA/nursing workflow, intermittent connectivity, mobile-first interface.
-3. **Solution:** consent, guided conjunctiva photo, quality gate, symptom context, triage zones.
-4. **Safety design:** uncertainty interval and abstention, danger signs, referral prompt, confirmatory testing.
-5. **Product demo:** screening flow and English/Hindi/Kannada interface.
-6. **Technical approach:** browser in-memory image processing, six colour features, local audit trail, optional patient-grouped research validation path.
-7. **Evidence and limits:** no bundled trained model; dataset suitability, subgroup fairness and clinical validity are open questions.
-8. **Next steps:** partner with clinicians/PHCs, ethically sourced multi-site data, prospective evaluation, privacy/security/governance review.
+- Current WHO and NP-NCD thresholds, local state protocols, referral criteria and triage rules.
+- Consent, capacity, withdrawal, data-sharing and retention/deletion wording.
+- DPDP Act 2023 applicability, state health-department data policies, hosting location, incident response and lawful processing basis.
+- English, Hindi and Kannada clinical wording, including native-speaking clinician review. Current translations are partial and should not be treated as approved.
+- Facility names, contact numbers, operating hours, directions and referral pathways.
+- Security architecture, encryption at rest, device sharing, backups, retention schedules and account recovery.
+- Any future model, image quality rule or clinical outcome metric must receive independent clinical and technical validation.
 
-## Limitations, risks and future scope
+### Intentionally left out
 
-- The browser estimator is deliberately labelled **heuristic demo (NOT trained)**. A numerical output from it has no measured accuracy; do not use it for care decisions.
-- Even a fitted six-feature ridge model is sensitive to phone camera, lighting, focus, skin/tissue appearance, image framing, and population differences. The API's “looks like tissue” check is a rough colour heuristic.
-- The training script assumes dataset quality and patient IDs are trustworthy. A five-fold result from a small dataset is unstable; no prospective or clinical validation is provided. Fairness metrics are not computed.
-- WHO thresholds in the UI must be verified against current guidance and local protocols. Severity bands here are simplified and do not implement all clinical modifiers.
-- Symptom adjustments and interval width are demonstrative heuristics until independently justified and calibrated. The zone is decision support only; danger signs require clinical assessment.
-- The client-only prototype has no user authentication, encrypted storage, retention/deletion controls, sync, or production monitoring. Browser local storage is readable by anyone with access to the device profile. Village, symptom, and screening metadata can be sensitive even without images.
-- Future work: usability studies with frontline workers, legitimate consented and diverse paired image/lab datasets, locked external validation, subgroup fairness and calibration, clinical oversight, privacy/security review, local-language review, offline data sync safeguards, and regulated deployment assessment.
+Real SMS/WhatsApp delivery, ABDM linkage, production maps/geocoding, external identity provider, clinical diagnosis or treatment recommendations, automated patient reminders while the app is closed, fully featured PDF reporting, and production-grade account/session revocation are not included. The application must not be used to replace Hb testing, clinician judgement or local governance.
+
+## Tests and checks
+
+```powershell
+npm test
+npm run build
+python -m pytest backend/tests -q
+```
+
+Frontend tests cover route guards, consent gating, IndexedDB queue behavior, language dictionary fallback and basic axe checks. Backend tests cover authentication, role enforcement, village scoping, sync idempotency, audit writes, consent and shared oral-rule cases. `npm audit` currently reports advisories in the development dependency tree; resolve and recheck before deployment.
