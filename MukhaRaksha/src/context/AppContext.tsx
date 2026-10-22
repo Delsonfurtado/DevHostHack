@@ -10,6 +10,8 @@ interface AppContextType {
   setRole: (role: UserRole) => void;
   darkMode: boolean;
   setDarkMode: (v: boolean) => void;
+  deviceMode: 'auto' | 'phone' | 'desktop';
+  setDeviceMode: (mode: 'auto' | 'phone' | 'desktop') => void;
   settings: AppSettings;
   updateSettings: (partial: Partial<AppSettings>) => void;
   speak: (text: string) => void;
@@ -112,8 +114,17 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setIsSpeaking(false);
   }, []);
 
+  const [deviceMode, setDeviceMode] = useState<'auto' | 'phone' | 'desktop'>(() => {
+    return (localStorage.getItem('mukharaksha_device_mode') as 'auto' | 'phone' | 'desktop') || 'auto';
+  });
+
+  const handleSetDeviceMode = useCallback((mode: 'auto' | 'phone' | 'desktop') => {
+    setDeviceMode(mode);
+    localStorage.setItem('mukharaksha_device_mode', mode);
+  }, []);
+
   return (
-    <AppContext.Provider value={{ lang, setLang, t, role, setRole, darkMode, setDarkMode, settings, updateSettings, speak, stopSpeaking, isSpeaking }}>
+    <AppContext.Provider value={{ lang, setLang, t, role, setRole, darkMode, setDarkMode, deviceMode, setDeviceMode: handleSetDeviceMode, settings, updateSettings, speak, stopSpeaking, isSpeaking }}>
       {children}
     </AppContext.Provider>
   );

@@ -292,7 +292,18 @@ export default function Screening() {
 
   return (
     <Layout title={t('newScreeningTitle')} showDisclaimer>
-      <div className="max-w-xl mx-auto px-4 py-4 space-y-4">
+      <div className="max-w-4xl mx-auto px-4 py-4 space-y-4">
+        {/* Client-Side Privacy Badge */}
+        <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-teal-50 dark:bg-teal-950/40 border border-teal-200/80 dark:border-teal-800/80 text-xs text-teal-900 dark:text-teal-200 shadow-2xs">
+          <Sparkles size={15} className="text-teal-600 shrink-0" />
+          <span className="leading-snug">
+            <strong>{lang === 'kn' ? '100% ಸ್ಥಳೀಯ ಮತ್ತು ಗೌಪ್ಯ' : '100% Client-Side Privacy'}:</strong>{' '}
+            {lang === 'kn'
+              ? 'ಎಲ್ಲಾ ರೋಗಿ ಮಾಹಿತಿ ಮತ್ತು ತಪಾಸಣಾ ಚಿತ್ರಗಳು ನಿಮ್ಮ ಬ್ರೌಸರ್‌ನ IndexedDB ಯಲ್ಲಿ ಮಾತ್ರ ಉಳಿಯುತ್ತವೆ.'
+              : 'All patient records and clinical images are stored securely on this device without external transmission.'}
+          </span>
+        </div>
+
         {/* Step Progress Tracker */}
         <ProgressSteps steps={stepsLabels} current={currentStep} />
 
@@ -307,85 +318,87 @@ export default function Screening() {
               <ReadAloudBtn text={lang === 'kn' ? 'ರೋಗಿಯ ಮೂಲ ವಿವರಗಳನ್ನು ಭರ್ತಿ ಮಾಡಿ' : 'Enter patient demographic details and verify verbal consent.'} />
             </div>
 
-            <Card className="space-y-3">
-              <div>
-                <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">
-                  {t('patientName')} *
-                </label>
-                <input
-                  type="text"
-                  value={patientData.name}
-                  onChange={(e) => setPatientData({ ...patientData, name: e.target.value })}
-                  placeholder="e.g. Ramesh Kumar"
-                  className="input-field"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
+            <Card className="space-y-4 p-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">
-                    {t('patientAge')} *
+                  <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+                    {t('patientName')} *
                   </label>
                   <input
-                    type="number"
-                    value={patientData.age}
-                    onChange={(e) => setPatientData({ ...patientData, age: e.target.value })}
-                    placeholder="e.g. 48"
+                    type="text"
+                    value={patientData.name}
+                    onChange={(e) => setPatientData({ ...patientData, name: e.target.value })}
+                    placeholder="e.g. Ramesh Kumar"
                     className="input-field"
-                    min="1"
-                    max="120"
                   />
                 </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+                      {t('patientAge')} *
+                    </label>
+                    <input
+                      type="number"
+                      value={patientData.age}
+                      onChange={(e) => setPatientData({ ...patientData, age: e.target.value })}
+                      placeholder="e.g. 48"
+                      className="input-field"
+                      min="1"
+                      max="120"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+                      {t('patientSex')}
+                    </label>
+                    <select
+                      value={patientData.sex}
+                      onChange={(e) => setPatientData({ ...patientData, sex: e.target.value as Sex })}
+                      className="input-field"
+                    >
+                      <option value="male">{t('male')}</option>
+                      <option value="female">{t('female')}</option>
+                      <option value="other">{t('other')}</option>
+                      <option value="prefer_not_to_say">{t('preferNotToSay')}</option>
+                    </select>
+                  </div>
+                </div>
+
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">
-                    {t('patientSex')}
+                  <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+                    {t('village')} *
                   </label>
-                  <select
-                    value={patientData.sex}
-                    onChange={(e) => setPatientData({ ...patientData, sex: e.target.value as Sex })}
+                  <input
+                    type="text"
+                    value={patientData.village}
+                    onChange={(e) => setPatientData({ ...patientData, village: e.target.value })}
+                    placeholder="e.g. Ramanagara"
                     className="input-field"
-                  >
-                    <option value="male">{t('male')}</option>
-                    <option value="female">{t('female')}</option>
-                    <option value="other">{t('other')}</option>
-                    <option value="prefer_not_to_say">{t('preferNotToSay')}</option>
-                  </select>
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+                    {t('phone')} (10 Digits)
+                  </label>
+                  <input
+                    type="tel"
+                    value={patientData.phone}
+                    onChange={(e) => setPatientData({ ...patientData, phone: e.target.value })}
+                    placeholder="9876543210"
+                    className="input-field"
+                    maxLength={10}
+                  />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">
-                  {t('village')} *
-                </label>
-                <input
-                  type="text"
-                  value={patientData.village}
-                  onChange={(e) => setPatientData({ ...patientData, village: e.target.value })}
-                  placeholder="e.g. Ramanagara"
-                  className="input-field"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">
-                  {t('phone')} (10 Digits)
-                </label>
-                <input
-                  type="tel"
-                  value={patientData.phone}
-                  onChange={(e) => setPatientData({ ...patientData, phone: e.target.value })}
-                  placeholder="9876543210"
-                  className="input-field"
-                  maxLength={10}
-                />
-              </div>
-
-              <div className="pt-2 border-t border-gray-100 dark:border-gray-700">
+              <div className="pt-3 border-t border-gray-100 dark:border-gray-800">
                 <Checkbox
                   checked={patientData.consentGiven}
                   onChange={(v) => setPatientData({ ...patientData, consentGiven: v })}
                   label={t('consentCheckbox')}
-                  className="p-2 rounded-lg bg-teal-50/50 dark:bg-teal-950/20"
+                  className="p-3 rounded-xl bg-teal-50/60 dark:bg-teal-950/30 border border-teal-100 dark:border-teal-900"
                 />
               </div>
             </Card>
@@ -403,36 +416,38 @@ export default function Screening() {
               <ReadAloudBtn text={lang === 'kn' ? 'ತಂಬಾಕು, ಅಡಿಕೆ ಮತ್ತು ಮದ್ಯಪಾನದ ಇತಿಹಾಸ' : 'Screening questions regarding tobacco, betel nut, alcohol and medical history.'} />
             </div>
 
-            <Card className="space-y-3">
-              <div className="font-semibold text-xs uppercase tracking-wider text-teal-800 dark:text-teal-300 mb-1">
+            <Card className="space-y-4 p-5">
+              <div className="font-semibold text-xs uppercase tracking-wider text-teal-800 dark:text-teal-300">
                 {t('tobaccoUse')} & Substance Habits
               </div>
 
-              <Checkbox
-                checked={history.tobaccoSmoking}
-                onChange={(v) => setHistory({ ...history, tobaccoSmoking: v })}
-                label={t('tobaccoSmoking')}
-              />
-              <Checkbox
-                checked={history.tobaccoChewing}
-                onChange={(v) => setHistory({ ...history, tobaccoChewing: v })}
-                label={t('tobaccoChewing')}
-              />
-              <Checkbox
-                checked={history.gutka}
-                onChange={(v) => setHistory({ ...history, gutka: v })}
-                label={t('gutka')}
-              />
-              <Checkbox
-                checked={history.arecaNutPan}
-                onChange={(v) => setHistory({ ...history, arecaNutPan: v })}
-                label={t('arecaNutPan')}
-              />
-              <Checkbox
-                checked={history.alcohol}
-                onChange={(v) => setHistory({ ...history, alcohol: v })}
-                label={t('alcohol')}
-              />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <Checkbox
+                  checked={history.tobaccoSmoking}
+                  onChange={(v) => setHistory({ ...history, tobaccoSmoking: v })}
+                  label={t('tobaccoSmoking')}
+                />
+                <Checkbox
+                  checked={history.tobaccoChewing}
+                  onChange={(v) => setHistory({ ...history, tobaccoChewing: v })}
+                  label={t('tobaccoChewing')}
+                />
+                <Checkbox
+                  checked={history.gutka}
+                  onChange={(v) => setHistory({ ...history, gutka: v })}
+                  label={t('gutka')}
+                />
+                <Checkbox
+                  checked={history.arecaNutPan}
+                  onChange={(v) => setHistory({ ...history, arecaNutPan: v })}
+                  label={t('arecaNutPan')}
+                />
+                <Checkbox
+                  checked={history.alcohol}
+                  onChange={(v) => setHistory({ ...history, alcohol: v })}
+                  label={t('alcohol')}
+                />
+              </div>
 
               {/* Conditional duration and frequency */}
               {(history.tobaccoSmoking || history.tobaccoChewing || history.gutka || history.arecaNutPan) && (
@@ -477,26 +492,28 @@ export default function Screening() {
                 {lang === 'kn' ? 'ಆರೋಗ್ಯ ಇತಿಹಾಸ' : 'Clinical History'}
               </div>
 
-              <Checkbox
-                checked={history.familyHistory}
-                onChange={(v) => setHistory({ ...history, familyHistory: v })}
-                label={t('familyHistory')}
-              />
-              <Checkbox
-                checked={history.hpvOrImmuneIssues}
-                onChange={(v) => setHistory({ ...history, hpvOrImmuneIssues: v })}
-                label={t('hpvOrImmuneIssues')}
-              />
-              <Checkbox
-                checked={history.poorDiet}
-                onChange={(v) => setHistory({ ...history, poorDiet: v })}
-                label={t('poorDiet')}
-              />
-              <Checkbox
-                checked={history.previousOralLesions}
-                onChange={(v) => setHistory({ ...history, previousOralLesions: v })}
-                label={t('previousOralLesions')}
-              />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <Checkbox
+                  checked={history.familyHistory}
+                  onChange={(v) => setHistory({ ...history, familyHistory: v })}
+                  label={t('familyHistory')}
+                />
+                <Checkbox
+                  checked={history.hpvOrImmuneIssues}
+                  onChange={(v) => setHistory({ ...history, hpvOrImmuneIssues: v })}
+                  label={t('hpvOrImmuneIssues')}
+                />
+                <Checkbox
+                  checked={history.poorDiet}
+                  onChange={(v) => setHistory({ ...history, poorDiet: v })}
+                  label={t('poorDiet')}
+                />
+                <Checkbox
+                  checked={history.previousOralLesions}
+                  onChange={(v) => setHistory({ ...history, previousOralLesions: v })}
+                  label={t('previousOralLesions')}
+                />
+              </div>
             </Card>
           </div>
         )}
@@ -512,81 +529,85 @@ export default function Screening() {
               <ReadAloudBtn text={lang === 'kn' ? 'ಬಾಯಿಯ ರೋಗಲಕ್ಷಣಗಳ ಪರೀಕ್ಷೆ' : 'Check patient for any current symptoms or oral discomfort.'} />
             </div>
 
-            <Card className="space-y-3">
-              <Checkbox
-                checked={symptoms.nonHealingUlcer}
-                onChange={(v) => setSymptoms({ ...symptoms, nonHealingUlcer: v })}
-                label={t('nonHealingUlcer')}
-                className="font-medium"
-              />
+            <Card className="space-y-4 p-5">
+              <div className="p-3.5 rounded-xl bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/60 shadow-2xs">
+                <Checkbox
+                  checked={symptoms.nonHealingUlcer}
+                  onChange={(v) => setSymptoms({ ...symptoms, nonHealingUlcer: v })}
+                  label={t('nonHealingUlcer')}
+                  className="font-bold text-amber-900 dark:text-amber-200"
+                />
 
-              {symptoms.nonHealingUlcer && (
-                <div className="ml-7 p-2 bg-amber-50 dark:bg-amber-950/20 rounded-lg">
-                  <label className="block text-xs text-amber-900 dark:text-amber-200 mb-1">
-                    {t('ulcerDuration')}
-                  </label>
-                  <input
-                    type="number"
-                    value={symptoms.nonHealingUlcerDuration || ''}
-                    onChange={(e) =>
-                      setSymptoms({ ...symptoms, nonHealingUlcerDuration: parseInt(e.target.value) || undefined })
-                    }
-                    placeholder="e.g. 3"
-                    className="input-field text-sm py-1.5"
-                  />
-                </div>
-              )}
+                {symptoms.nonHealingUlcer && (
+                  <div className="ml-7 mt-2 pt-2 border-t border-amber-200/60 dark:border-amber-800/60">
+                    <label className="block text-xs font-semibold text-amber-900 dark:text-amber-200 mb-1">
+                      {t('ulcerDuration')}
+                    </label>
+                    <input
+                      type="number"
+                      value={symptoms.nonHealingUlcerDuration || ''}
+                      onChange={(e) =>
+                        setSymptoms({ ...symptoms, nonHealingUlcerDuration: parseInt(e.target.value) || undefined })
+                      }
+                      placeholder="e.g. 3"
+                      className="input-field text-sm py-1.5 max-w-xs"
+                    />
+                  </div>
+                )}
+              </div>
 
-              <Checkbox
-                checked={symptoms.whitePatches}
-                onChange={(v) => setSymptoms({ ...symptoms, whitePatches: v })}
-                label={t('whitePatches')}
-              />
-              <Checkbox
-                checked={symptoms.redPatches}
-                onChange={(v) => setSymptoms({ ...symptoms, redPatches: v })}
-                label={t('redPatches')}
-              />
-              <Checkbox
-                checked={symptoms.lumpOrThickening}
-                onChange={(v) => setSymptoms({ ...symptoms, lumpOrThickening: v })}
-                label={t('lumpOrThickening')}
-              />
-              <Checkbox
-                checked={symptoms.difficultyOpeningMouth}
-                onChange={(v) => setSymptoms({ ...symptoms, difficultyOpeningMouth: v })}
-                label={t('difficultyOpeningMouth')}
-              />
-              <Checkbox
-                checked={symptoms.difficultySwallowing}
-                onChange={(v) => setSymptoms({ ...symptoms, difficultySwallowing: v })}
-                label={t('difficultySwallowing')}
-              />
-              <Checkbox
-                checked={symptoms.painOrBurning}
-                onChange={(v) => setSymptoms({ ...symptoms, painOrBurning: v })}
-                label={t('painOrBurning')}
-              />
-              <Checkbox
-                checked={symptoms.loosTeeth}
-                onChange={(v) => setSymptoms({ ...symptoms, loosTeeth: v })}
-                label={t('loosTeeth')}
-              />
-              <Checkbox
-                checked={symptoms.unexplainedBleeding}
-                onChange={(v) => setSymptoms({ ...symptoms, unexplainedBleeding: v })}
-                label={t('unexplainedBleeding')}
-              />
-              <Checkbox
-                checked={symptoms.numbness}
-                onChange={(v) => setSymptoms({ ...symptoms, numbness: v })}
-                label={t('numbness')}
-              />
-              <Checkbox
-                checked={symptoms.neckSwelling}
-                onChange={(v) => setSymptoms({ ...symptoms, neckSwelling: v })}
-                label={t('neckSwelling')}
-              />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <Checkbox
+                  checked={symptoms.whitePatches}
+                  onChange={(v) => setSymptoms({ ...symptoms, whitePatches: v })}
+                  label={t('whitePatches')}
+                />
+                <Checkbox
+                  checked={symptoms.redPatches}
+                  onChange={(v) => setSymptoms({ ...symptoms, redPatches: v })}
+                  label={t('redPatches')}
+                />
+                <Checkbox
+                  checked={symptoms.lumpOrThickening}
+                  onChange={(v) => setSymptoms({ ...symptoms, lumpOrThickening: v })}
+                  label={t('lumpOrThickening')}
+                />
+                <Checkbox
+                  checked={symptoms.difficultyOpeningMouth}
+                  onChange={(v) => setSymptoms({ ...symptoms, difficultyOpeningMouth: v })}
+                  label={t('difficultyOpeningMouth')}
+                />
+                <Checkbox
+                  checked={symptoms.difficultySwallowing}
+                  onChange={(v) => setSymptoms({ ...symptoms, difficultySwallowing: v })}
+                  label={t('difficultySwallowing')}
+                />
+                <Checkbox
+                  checked={symptoms.painOrBurning}
+                  onChange={(v) => setSymptoms({ ...symptoms, painOrBurning: v })}
+                  label={t('painOrBurning')}
+                />
+                <Checkbox
+                  checked={symptoms.loosTeeth}
+                  onChange={(v) => setSymptoms({ ...symptoms, loosTeeth: v })}
+                  label={t('loosTeeth')}
+                />
+                <Checkbox
+                  checked={symptoms.unexplainedBleeding}
+                  onChange={(v) => setSymptoms({ ...symptoms, unexplainedBleeding: v })}
+                  label={t('unexplainedBleeding')}
+                />
+                <Checkbox
+                  checked={symptoms.numbness}
+                  onChange={(v) => setSymptoms({ ...symptoms, numbness: v })}
+                  label={t('numbness')}
+                />
+                <Checkbox
+                  checked={symptoms.neckSwelling}
+                  onChange={(v) => setSymptoms({ ...symptoms, neckSwelling: v })}
+                  label={t('neckSwelling')}
+                />
+              </div>
             </Card>
           </div>
         )}
@@ -605,11 +626,11 @@ export default function Screening() {
               <ReadAloudBtn text={lang === 'kn' ? 'ಬಾಯಿಯ ಎಲ್ಲ ಭಾಗಗಳನ್ನು ಪರಿಶೀಲಿಸಿ ಗುರುತಿಸಿ' : 'Carefully inspect each oral site and select findings.'} />
             </div>
 
-            <div className="space-y-2">
-              {SITES.map((siteItem, idx) => {
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {SITES.map((siteItem) => {
                 const currentFinding = findings.find((f) => f.site === siteItem.en)?.status || 'normal';
                 return (
-                  <Card key={siteItem.key} className="p-3 flex items-center justify-between">
+                  <Card key={siteItem.key} className="p-3.5 flex items-center justify-between gap-2 shadow-2xs">
                     <div>
                       <div className="text-sm font-semibold text-gray-900 dark:text-white">
                         {lang === 'kn' ? siteItem.kn : siteItem.en}
@@ -617,14 +638,14 @@ export default function Screening() {
                       <div className="text-[10px] text-gray-400">{siteItem.en}</div>
                     </div>
 
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1 shrink-0">
                       {(['normal', 'suspicious', 'not_examined'] as FindingStatus[]).map((status) => {
                         const isSel = currentFinding === status;
-                        let btnStyle = 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300';
+                        let btnStyle = 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300';
                         if (isSel) {
-                          if (status === 'normal') btnStyle = 'bg-green-600 text-white font-bold';
-                          if (status === 'suspicious') btnStyle = 'bg-amber-600 text-white font-bold';
-                          if (status === 'not_examined') btnStyle = 'bg-gray-500 text-white font-bold';
+                          if (status === 'normal') btnStyle = 'bg-green-600 text-white font-bold shadow-xs';
+                          if (status === 'suspicious') btnStyle = 'bg-amber-600 text-white font-bold shadow-xs';
+                          if (status === 'not_examined') btnStyle = 'bg-gray-500 text-white font-bold shadow-xs';
                         }
                         const labelMap: Record<FindingStatus, string> = {
                           normal: t('normal'),
@@ -644,7 +665,7 @@ export default function Screening() {
                               }
                               setFindings(updated);
                             }}
-                            className={`py-1.5 px-2 text-[11px] rounded-lg transition-all ${btnStyle}`}
+                            className={`py-1.5 px-2.5 text-xs rounded-lg transition-all ${btnStyle}`}
                           >
                             {labelMap[status]}
                           </button>
@@ -665,7 +686,7 @@ export default function Screening() {
                 </span>
                 <button
                   onClick={() => navigate('/capture?screeningId=temp')}
-                  className="btn-primary text-xs py-1.5 px-3 flex items-center gap-1"
+                  className="btn-primary text-xs py-1.5 px-3 flex items-center gap-1 shadow-xs"
                 >
                   <Camera size={14} />
                   {lang === 'kn' ? 'ಚಿತ್ರ ಸೆರೆಹಿಡಿಯಿರಿ' : 'Launch Camera'}
@@ -675,7 +696,7 @@ export default function Screening() {
               {attachedImages.length === 0 ? (
                 <p className="text-xs text-gray-400 italic text-center py-2">{t('noImagesAttached')}</p>
               ) : (
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
                   {attachedImages.map((img) => (
                     <div key={img.id} className="relative aspect-square rounded-xl overflow-hidden border">
                       <img src={img.thumbnail} alt="Oral site" className="w-full h-full object-cover" />
@@ -711,88 +732,97 @@ export default function Screening() {
               />
             </div>
 
-            {/* Risk Banner */}
-            <div className={`p-5 rounded-2xl border ${getRiskBg(riskResult.level)} space-y-2`}>
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300">
-                  {t('riskLevel')}
-                </span>
-                <RiskBadge level={riskResult.level} />
-              </div>
-
-              <div className="text-sm font-semibold text-gray-900 dark:text-white pt-1">
-                {riskResult.level === 'HIGH' && t('highAdvice')}
-                {riskResult.level === 'MODERATE' && t('moderateAdvice')}
-                {riskResult.level === 'LOW' && t('lowAdvice')}
-              </div>
-            </div>
-
-            {/* Explainable Panel: Why this result? */}
-            <Card className="space-y-3">
-              <div className="flex items-center gap-2">
-                <HelpCircle size={18} className="text-teal-600" />
-                <h3 className="text-sm font-bold text-gray-900 dark:text-white">{t('whyThisResult')}</h3>
-              </div>
-
-              <div className="space-y-2 text-xs">
-                {riskResult.factors.length === 0 ? (
-                  <p className="text-gray-500 italic">
-                    {lang === 'kn'
-                      ? 'ಯಾವುದೇ ಗಂಭೀರ ತಂಬಾಕು ಅಥವಾ ಹುಣ್ಣಿನ ಅಪಾಯಕಾರಿ ಅಂಶಗಳು ಕಂಡುಬಂದಿಲ್ಲ.'
-                      : 'No critical tobacco exposure or prolonged mucosal lesions recorded.'}
-                  </p>
-                ) : (
-                  (lang === 'kn' ? riskResult.factorsKn : riskResult.factors).map((factor, i) => (
-                    <div key={i} className="flex items-center gap-2 p-2 rounded-lg bg-gray-50 dark:bg-gray-700/50">
-                      <div className="w-2 h-2 rounded-full bg-teal-600 shrink-0" />
-                      <span className="font-medium text-gray-800 dark:text-gray-200">{factor}</span>
-                    </div>
-                  ))
-                )}
-              </div>
-            </Card>
-
-            {/* Summary Findings Table */}
-            <Card className="space-y-2">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">
-                {lang === 'kn' ? 'ಪರೀಕ್ಷಿಸಿದ ಭಾಗಗಳ ವಿವರ' : 'Visual Examination Summary'}
-              </h3>
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                {findings.map((f, i) => (
-                  <div key={i} className="p-2 rounded-lg bg-gray-50 dark:bg-gray-700/40 flex justify-between items-center">
-                    <span className="text-gray-700 dark:text-gray-300">{f.site}</span>
-                    <span
-                      className={`font-bold uppercase text-[10px] ${
-                        f.status === 'suspicious'
-                          ? 'text-red-500'
-                          : f.status === 'normal'
-                          ? 'text-green-600'
-                          : 'text-gray-400'
-                      }`}
-                    >
-                      {f.status === 'suspicious' ? t('suspicious') : f.status === 'normal' ? t('normal') : t('notExamined')}
+            {/* Desktop 2-column result layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {/* Left Column: Risk Banner & Explanation */}
+              <div className="space-y-4">
+                {/* Risk Banner */}
+                <div className={`p-5 rounded-2xl border ${getRiskBg(riskResult.level)} space-y-2.5 shadow-2xs`}>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300">
+                      {t('riskLevel')}
                     </span>
+                    <RiskBadge level={riskResult.level} />
                   </div>
-                ))}
-              </div>
-            </Card>
 
-            {/* Actions: Save & PDF */}
-            <div className="flex flex-col sm:flex-row gap-2 pt-2">
-              <button
-                onClick={handlePrintPDF}
-                className="btn-secondary flex-1 flex items-center justify-center gap-2 py-3"
-              >
-                <Printer size={18} />
-                {t('printSummary')}
-              </button>
-              <button
-                onClick={handleSaveScreening}
-                className="btn-primary flex-1 flex items-center justify-center gap-2 py-3"
-              >
-                <Save size={18} />
-                {t('saveScreening')}
-              </button>
+                  <div className="text-sm font-semibold text-gray-900 dark:text-white pt-1 leading-relaxed">
+                    {riskResult.level === 'HIGH' && t('highAdvice')}
+                    {riskResult.level === 'MODERATE' && t('moderateAdvice')}
+                    {riskResult.level === 'LOW' && t('lowAdvice')}
+                  </div>
+                </div>
+
+                {/* Explainable Panel: Why this result? */}
+                <Card className="space-y-3 p-4">
+                  <div className="flex items-center gap-2">
+                    <HelpCircle size={18} className="text-teal-600" />
+                    <h3 className="text-sm font-bold text-gray-900 dark:text-white">{t('whyThisResult')}</h3>
+                  </div>
+
+                  <div className="space-y-2 text-xs">
+                    {riskResult.factors.length === 0 ? (
+                      <p className="text-gray-500 italic">
+                        {lang === 'kn'
+                          ? 'ಯಾವುದೇ ಗಂಭೀರ ತಂಬಾಕು ಅಥವಾ ಹುಣ್ಣಿನ ಅಪಾಯಕಾರಿ ಅಂಶಗಳು ಕಂಡುಬಂದಿಲ್ಲ.'
+                          : 'No critical tobacco exposure or prolonged mucosal lesions recorded.'}
+                      </p>
+                    ) : (
+                      (lang === 'kn' ? riskResult.factorsKn : riskResult.factors).map((factor, i) => (
+                        <div key={i} className="flex items-center gap-2 p-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
+                          <div className="w-2 h-2 rounded-full bg-teal-600 shrink-0" />
+                          <span className="font-medium text-gray-800 dark:text-gray-200">{factor}</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </Card>
+              </div>
+
+              {/* Right Column: Findings Summary Table & Action Buttons */}
+              <div className="space-y-4">
+                {/* Summary Findings Table */}
+                <Card className="space-y-2.5 p-4">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500">
+                    {lang === 'kn' ? 'ಪರೀಕ್ಷಿಸಿದ ಭಾಗಗಳ ವಿವರ' : 'Visual Examination Summary'}
+                  </h3>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    {findings.map((f, i) => (
+                      <div key={i} className="p-2 rounded-lg bg-gray-50 dark:bg-gray-800 flex justify-between items-center border border-gray-100 dark:border-gray-700/60">
+                        <span className="text-gray-700 dark:text-gray-300 font-medium truncate pr-1">{f.site}</span>
+                        <span
+                          className={`font-bold uppercase text-[10px] shrink-0 ${
+                            f.status === 'suspicious'
+                              ? 'text-red-500'
+                              : f.status === 'normal'
+                              ? 'text-green-600'
+                              : 'text-gray-400'
+                          }`}
+                        >
+                          {f.status === 'suspicious' ? t('suspicious') : f.status === 'normal' ? t('normal') : t('notExamined')}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+
+                {/* Actions: Save & PDF */}
+                <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
+                  <button
+                    onClick={handlePrintPDF}
+                    className="btn-secondary flex-1 flex items-center justify-center gap-2 py-3 text-xs font-bold shadow-xs"
+                  >
+                    <Printer size={18} />
+                    {t('printSummary')}
+                  </button>
+                  <button
+                    onClick={handleSaveScreening}
+                    className="btn-primary flex-1 flex items-center justify-center gap-2 py-3 text-xs font-bold shadow-sm"
+                  >
+                    <Save size={18} />
+                    {t('saveScreening')}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}

@@ -336,14 +336,14 @@ export default function Capture() {
 
   return (
     <Layout title={t('captureTitle')} showDisclaimer>
-      <div className="max-w-xl mx-auto px-4 py-4 space-y-4">
+      <div className="space-y-4">
         {/* Header / Intro */}
         <div className="flex items-center justify-between">
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center gap-1 text-sm text-teal-600 dark:text-teal-400 font-medium"
+            className="flex items-center gap-1.5 text-xs sm:text-sm text-teal-600 dark:text-teal-400 font-bold"
           >
-            <ArrowLeft size={18} />
+            <ArrowLeft size={16} />
             {t('back')}
           </button>
           <ReadAloudBtn
@@ -355,263 +355,280 @@ export default function Capture() {
           />
         </div>
 
-        {/* Oral Site Selector */}
-        <div>
-          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-            {t('selectSite')} ({lang === 'kn' ? 'ಭಾಗ ಆಯ್ಕೆ' : 'Target Site'})
-          </label>
-          <div className="grid grid-cols-3 gap-1.5">
-            {ORAL_SITES.map((site) => (
-              <button
-                key={site.id}
-                onClick={() => setSelectedSite(site.id)}
-                className={`py-2 px-2 text-xs font-medium rounded-xl border transition-all ${
-                  selectedSite === site.id
-                    ? 'bg-teal-600 text-white border-teal-600 shadow-sm'
-                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700'
-                }`}
-              >
-                {lang === 'kn' ? site.labelKn : site.labelEn}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Viewport: Camera / Captured View */}
-        <Card className="overflow-hidden p-0 relative border-2 border-teal-500/20">
-          {!capturedDataUrl ? (
-            <div className="relative bg-black aspect-[4/3] flex items-center justify-center overflow-hidden">
-              <video
-                ref={videoRef}
-                playsInline
-                muted
-                autoPlay
-                className="w-full h-full object-cover"
-              />
-
-              {/* Anatomical Camera Guide Overlay */}
-              <div className="camera-overlay flex flex-col items-center justify-center p-4">
-                <div className="w-52 h-64 border-2 border-dashed border-teal-400/80 rounded-full flex flex-col items-center justify-between py-6 px-3 bg-teal-900/10 backdrop-blur-[1px]">
-                  <span className="text-[10px] font-bold text-teal-200 bg-black/60 px-2 py-0.5 rounded-full">
-                    {lang === 'kn' ? 'ಅಂಗುಳ / ಗಂಟಲು' : 'Palate / Throat'}
-                  </span>
-                  <div className="text-center">
-                    <span className="text-[11px] font-bold text-white bg-teal-700/80 px-2.5 py-1 rounded-full shadow">
-                      {ORAL_SITES.find((s) => s.id === selectedSite)?.labelEn || selectedSite}
-                    </span>
-                  </div>
-                  <span className="text-[10px] font-bold text-teal-200 bg-black/60 px-2 py-0.5 rounded-full">
-                    {lang === 'kn' ? 'ನಾಲಿಗೆ / ಕೆಳ ತುಟಿ' : 'Tongue / Lower Lip'}
-                  </span>
-                </div>
-              </div>
-
-              {cameraError && (
-                <div className="absolute inset-0 bg-gray-900/90 text-white p-6 flex flex-col items-center justify-center text-center gap-3">
-                  <AlertTriangle className="text-amber-400" size={36} />
-                  <p className="text-sm">{cameraError}</p>
-                  <button onClick={startCamera} className="btn-secondary text-xs py-1.5 px-3">
-                    <RefreshCw size={14} className="inline mr-1" /> {t('retake')}
-                  </button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="relative bg-black aspect-[4/3] flex items-center justify-center">
-              <img src={capturedDataUrl} alt="Captured" className="w-full h-full object-contain" />
-              {qualityReport && (
-                <div className="absolute top-2 right-2">
-                  <span
-                    className={`px-2.5 py-1 rounded-full text-xs font-bold text-white shadow-md flex items-center gap-1 ${
-                      qualityReport.overallPass ? 'bg-green-600' : 'bg-red-600'
+        {/* Dual UI Grid: 1 col on mobile, 2 cols on PC */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+          {/* ── Left Column: Viewfinder & Controls (lg:col-span-7) ── */}
+          <div className="lg:col-span-7 space-y-4">
+            {/* Oral Site Selector */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                {t('selectSite')} ({lang === 'kn' ? 'ಭಾಗ ಆಯ್ಕೆ' : 'Target Site'})
+              </label>
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
+                {ORAL_SITES.map((site) => (
+                  <button
+                    key={site.id}
+                    onClick={() => setSelectedSite(site.id)}
+                    className={`py-2 px-1 text-[11px] font-bold rounded-xl border transition-all text-center ${
+                      selectedSite === site.id
+                        ? 'bg-teal-600 text-white border-teal-600 shadow-xs'
+                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700'
                     }`}
                   >
-                    {qualityReport.overallPass ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
-                    {qualityReport.overallPass ? t('passed') : t('failed')}
-                  </span>
+                    {lang === 'kn' ? site.labelKn : site.labelEn}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Viewport: Camera / Captured View */}
+            <Card className="overflow-hidden p-0 relative border-2 border-teal-500/30 shadow-md">
+              {!capturedDataUrl ? (
+                <div className="relative bg-black aspect-[4/3] flex items-center justify-center overflow-hidden">
+                  <video
+                    ref={videoRef}
+                    playsInline
+                    muted
+                    autoPlay
+                    className="w-full h-full object-cover"
+                  />
+
+                  {/* Anatomical Camera Guide Overlay */}
+                  <div className="camera-overlay flex flex-col items-center justify-center p-4">
+                    <div className="w-56 h-68 border-2 border-dashed border-teal-400/80 rounded-full flex flex-col items-center justify-between py-6 px-3 bg-teal-900/10 backdrop-blur-[1px]">
+                      <span className="text-[10px] font-bold text-teal-200 bg-black/60 px-2.5 py-0.5 rounded-full">
+                        {lang === 'kn' ? 'ಅಂಗುಳ / ಗಂಟಲು' : 'Palate / Throat'}
+                      </span>
+                      <div className="text-center">
+                        <span className="text-xs font-bold text-white bg-teal-700/80 px-3 py-1 rounded-full shadow">
+                          {ORAL_SITES.find((s) => s.id === selectedSite)?.labelEn || selectedSite}
+                        </span>
+                      </div>
+                      <span className="text-[10px] font-bold text-teal-200 bg-black/60 px-2.5 py-0.5 rounded-full">
+                        {lang === 'kn' ? 'ನಾಲಿಗೆ / ಕೆಳ ತುಟಿ' : 'Tongue / Lower Lip'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {cameraError && (
+                    <div className="absolute inset-0 bg-slate-900/90 text-white p-6 flex flex-col items-center justify-center text-center gap-3">
+                      <AlertTriangle className="text-amber-400" size={36} />
+                      <p className="text-xs sm:text-sm max-w-sm">{cameraError}</p>
+                      <button onClick={startCamera} className="btn-secondary text-xs py-1.5 px-3">
+                        <RefreshCw size={14} className="inline mr-1" /> {t('retake')}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="relative bg-black aspect-[4/3] flex items-center justify-center">
+                  <img src={capturedDataUrl} alt="Captured" className="w-full h-full object-contain" />
+                  {qualityReport && (
+                    <div className="absolute top-2 right-2">
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-bold text-white shadow-md flex items-center gap-1 ${
+                          qualityReport.overallPass ? 'bg-emerald-600' : 'bg-rose-600'
+                        }`}
+                      >
+                        {qualityReport.overallPass ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
+                        {qualityReport.overallPass ? t('passed') : t('failed')}
+                      </span>
+                    </div>
+                  )}
                 </div>
               )}
-            </div>
-          )}
 
-          {/* Action Bar Under Viewport */}
-          <div className="p-4 bg-white dark:bg-gray-800 flex items-center justify-around gap-2">
-            {!capturedDataUrl ? (
-              <>
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="p-3 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200"
-                  title={t('uploadImage')}
-                >
-                  <Upload size={20} />
-                </button>
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  accept="image/*"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                />
+              {/* Action Bar Under Viewport */}
+              <div className="p-4 bg-white dark:bg-slate-800 flex items-center justify-around gap-2">
+                {!capturedDataUrl ? (
+                  <>
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      className="p-3 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200"
+                      title={t('uploadImage')}
+                    >
+                      <Upload size={20} />
+                    </button>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      accept="image/*"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                    />
 
-                <button
-                  onClick={takePhoto}
-                  className="flex items-center justify-center w-16 h-16 rounded-full bg-teal-600 hover:bg-teal-700 text-white shadow-lg active:scale-95 transition-transform"
-                >
-                  <div className="w-13 h-13 rounded-full border-2 border-white flex items-center justify-center">
-                    <Camera size={26} />
-                  </div>
-                </button>
+                    <button
+                      onClick={takePhoto}
+                      className="flex items-center justify-center w-16 h-16 rounded-full bg-teal-600 hover:bg-teal-700 text-white shadow-lg active:scale-95 transition-transform"
+                    >
+                      <div className="w-13 h-13 rounded-full border-2 border-white flex items-center justify-center">
+                        <Camera size={26} />
+                      </div>
+                    </button>
 
-                <button
-                  onClick={startCamera}
-                  className="p-3 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200"
-                  title="Switch / Reset"
-                >
-                  <RefreshCw size={20} />
-                </button>
-              </>
-            ) : (
-              <div className="w-full flex items-center justify-between gap-3">
-                <button onClick={handleRetake} className="btn-secondary flex-1 flex items-center justify-center gap-1.5 py-2.5">
-                  <RefreshCw size={16} />
-                  {t('retake')}
-                </button>
-
-                {qualityReport?.overallPass ? (
-                  <button onClick={() => handleSave(false)} className="btn-primary flex-1 flex items-center justify-center gap-1.5 py-2.5">
-                    <CheckCircle2 size={16} />
-                    {t('saveImage')}
-                  </button>
+                    <button
+                      onClick={startCamera}
+                      className="p-3 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200"
+                      title="Switch / Reset"
+                    >
+                      <RefreshCw size={20} />
+                    </button>
+                  </>
                 ) : (
-                  <button onClick={() => handleSave(true)} className="bg-amber-600 hover:bg-amber-700 text-white font-semibold py-2.5 px-4 rounded-xl flex-1 text-xs flex items-center justify-center gap-1">
-                    <AlertTriangle size={14} />
-                    {t('saveAnyway')}
-                  </button>
+                  <div className="w-full flex items-center justify-between gap-3">
+                    <button onClick={handleRetake} className="btn-secondary flex-1 flex items-center justify-center gap-1.5 py-2.5">
+                      <RefreshCw size={16} />
+                      {t('retake')}
+                    </button>
+
+                    {qualityReport?.overallPass ? (
+                      <button onClick={() => handleSave(false)} className="btn-primary flex-1 flex items-center justify-center gap-1.5 py-2.5">
+                        <CheckCircle2 size={16} />
+                        {t('saveImage')}
+                      </button>
+                    ) : (
+                      <button onClick={() => handleSave(true)} className="bg-amber-600 hover:bg-amber-700 text-white font-semibold py-2.5 px-4 rounded-xl flex-1 text-xs flex items-center justify-center gap-1">
+                        <AlertTriangle size={14} />
+                        {t('saveAnyway')}
+                      </button>
+                    )}
+                  </div>
                 )}
+              </div>
+            </Card>
+          </div>
+
+          {/* ── Right Column: Quality Guard & Bench (lg:col-span-5) ── */}
+          <div className="lg:col-span-5 space-y-4">
+            {/* Quality Guard Report Card */}
+            {qualityReport ? (
+              <Card className="space-y-3 border-l-4 border-l-teal-600 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <ShieldCheck size={18} className="text-teal-600" />
+                    {t('qualityCheck')}
+                  </h3>
+                  <span className={`text-xs font-bold ${qualityReport.overallPass ? 'text-emerald-600' : 'text-rose-500'}`}>
+                    {qualityReport.overallPass
+                      ? (lang === 'kn' ? 'ಗುಣಮಟ್ಟ ಸರಿಹೊಂದಿದೆ' : 'Optimal for Review')
+                      : (lang === 'kn' ? 'ಗುಣಮಟ್ಟ ಪರಿಷ್ಕರಣೆ ಅಗತ್ಯ' : 'Quality Issues Detected')}
+                  </span>
+                </div>
+
+                {/* 1. Blur Check */}
+                <div className="flex items-start gap-2.5 text-xs p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800">
+                  {qualityReport.blurPass ? (
+                    <CheckCircle2 size={16} className="text-emerald-600 shrink-0 mt-0.5" />
+                  ) : (
+                    <XCircle size={16} className="text-rose-500 shrink-0 mt-0.5" />
+                  )}
+                  <div className="flex-1">
+                    <div className="flex justify-between font-semibold">
+                      <span>{t('blur')} (Sharpness)</span>
+                      <span>Score: {qualityReport.blurScore} (Min: 65)</span>
+                    </div>
+                    {!qualityReport.blurPass && (
+                      <p className="text-amber-700 dark:text-amber-300 mt-0.5">{t('blurMessage')}</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* 2. Lighting Check */}
+                <div className="flex items-start gap-2.5 text-xs p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800">
+                  {qualityReport.lightingPass ? (
+                    <CheckCircle2 size={16} className="text-emerald-600 shrink-0 mt-0.5" />
+                  ) : (
+                    <XCircle size={16} className="text-rose-500 shrink-0 mt-0.5" />
+                  )}
+                  <div className="flex-1">
+                    <div className="flex justify-between font-semibold">
+                      <span>{t('lighting')} (Exposure)</span>
+                      <span>Brightness: {qualityReport.lightingScore}/255</span>
+                    </div>
+                    {!qualityReport.lightingPass && (
+                      <p className="text-amber-700 dark:text-amber-300 mt-0.5">{t('lightingMessage')}</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* 3. Usability / Pink Content Check */}
+                <div className="flex items-start gap-2.5 text-xs p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800">
+                  {qualityReport.oralPass ? (
+                    <CheckCircle2 size={16} className="text-emerald-600 shrink-0 mt-0.5" />
+                  ) : (
+                    <XCircle size={16} className="text-rose-500 shrink-0 mt-0.5" />
+                  )}
+                  <div className="flex-1">
+                    <div className="flex justify-between font-semibold">
+                      <span>{t('usability')}</span>
+                      <span>Oral Content: {qualityReport.oralContentScore}% (Min: 6%)</span>
+                    </div>
+                    {!qualityReport.oralPass && (
+                      <p className="text-amber-700 dark:text-amber-300 mt-0.5">{t('usabilityMessage')}</p>
+                    )}
+                  </div>
+                </div>
+              </Card>
+            ) : (
+              <Card className="p-4 text-center text-xs text-slate-400 space-y-1">
+                <ShieldCheck size={28} className="mx-auto text-teal-600/60" />
+                <p className="font-semibold text-slate-700 dark:text-slate-300">
+                  {lang === 'kn' ? 'ಚಿತ್ರ ಸೆರೆಹಿಡಿದ ನಂತರ ಸ್ವಯಂಚಾಲಿತ ವಿಶ್ಲೇಷಣೆ' : 'Awaiting Image Capture'}
+                </p>
+                <p>On-device Laplacian sharpness, exposure, and oral tissue check will run immediately.</p>
+              </Card>
+            )}
+
+            {/* Demo Mode Section */}
+            <Card className="bg-gradient-to-r from-teal-50 to-coral-50 dark:from-teal-950/20 dark:to-coral-950/20 border-teal-200 dark:border-teal-800 p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles size={16} className="text-teal-600" />
+                <h4 className="text-xs font-bold uppercase tracking-wide text-teal-800 dark:text-teal-300">
+                  {t('demoMode')} (Live Test Bench)
+                </h4>
+              </div>
+              <p className="text-xs text-slate-600 dark:text-slate-300 mb-3">
+                {lang === 'kn'
+                  ? 'ಕ್ಯಾಮರಾ ಇಲ್ಲದೆ ಗುಣಮಟ್ಟದ ಎಚ್ಚರಿಕೆಗಳನ್ನು ಪರೀಕ್ಷಿಸಲು ಮಾದರಿ ಚಿತ್ರಗಳನ್ನು ಪ್ರಯತ್ನಿಸಿ.'
+                  : 'Test blur and lighting validation logic live using generated oral tissue samples.'}
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => loadDemoSample(false)}
+                  className="py-2.5 px-3 text-xs font-bold rounded-xl bg-white dark:bg-slate-800 text-teal-700 dark:text-teal-300 border border-teal-300 shadow-2xs hover:bg-teal-50"
+                >
+                  ✅ {t('clearSample')}
+                </button>
+                <button
+                  onClick={() => loadDemoSample(true)}
+                  className="py-2.5 px-3 text-xs font-bold rounded-xl bg-white dark:bg-slate-800 text-coral-600 dark:text-coral-400 border border-coral-300 shadow-2xs hover:bg-coral-50"
+                >
+                  ⚠️ {t('blurrySample')}
+                </button>
+              </div>
+            </Card>
+
+            {/* Recent Local Captures */}
+            {recentImages.length > 0 && (
+              <div>
+                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  <ImageIcon size={14} />
+                  {lang === 'kn' ? 'ಸ್ಥಳೀಯ ಗ್ಯಾಲರಿ' : 'Recently Saved Captures'}
+                </h4>
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                  {recentImages.map((img) => (
+                    <div key={img.id} className="relative aspect-square rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100">
+                      <img src={img.thumbnail} alt="Oral site" className="w-full h-full object-cover" />
+                      <span className={`absolute bottom-1 right-1 text-[9px] font-bold px-1.5 py-0.5 rounded ${img.qualityPassed ? 'bg-emerald-600 text-white' : 'bg-amber-600 text-white'}`}>
+                        {img.site || 'Mouth'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
-        </Card>
-
-        {/* Quality Guard Report Card */}
-        {qualityReport && (
-          <Card className="space-y-3 border-l-4 border-l-teal-600">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                <ShieldCheck size={18} className="text-teal-600" />
-                {t('qualityCheck')}
-              </h3>
-              <span className={`text-xs font-bold ${qualityReport.overallPass ? 'text-green-600' : 'text-red-500'}`}>
-                {qualityReport.overallPass
-                  ? (lang === 'kn' ? 'ಗುಣಮಟ್ಟ ಸರಿಹೊಂದಿದೆ' : 'Optimal for Review')
-                  : (lang === 'kn' ? 'ಗುಣಮಟ್ಟ ಪರಿಷ್ಕರಣೆ ಅಗತ್ಯ' : 'Quality Issues Detected')}
-              </span>
-            </div>
-
-            {/* 1. Blur Check */}
-            <div className="flex items-start gap-2.5 text-xs p-2 rounded-lg bg-gray-50 dark:bg-gray-700/50">
-              {qualityReport.blurPass ? (
-                <CheckCircle2 size={16} className="text-green-600 shrink-0 mt-0.5" />
-              ) : (
-                <XCircle size={16} className="text-red-500 shrink-0 mt-0.5" />
-              )}
-              <div className="flex-1">
-                <div className="flex justify-between font-semibold">
-                  <span>{t('blur')} (Sharpness)</span>
-                  <span>Score: {qualityReport.blurScore} (Min: 65)</span>
-                </div>
-                {!qualityReport.blurPass && (
-                  <p className="text-amber-700 dark:text-amber-300 mt-0.5">{t('blurMessage')}</p>
-                )}
-              </div>
-            </div>
-
-            {/* 2. Lighting Check */}
-            <div className="flex items-start gap-2.5 text-xs p-2 rounded-lg bg-gray-50 dark:bg-gray-700/50">
-              {qualityReport.lightingPass ? (
-                <CheckCircle2 size={16} className="text-green-600 shrink-0 mt-0.5" />
-              ) : (
-                <XCircle size={16} className="text-red-500 shrink-0 mt-0.5" />
-              )}
-              <div className="flex-1">
-                <div className="flex justify-between font-semibold">
-                  <span>{t('lighting')} (Exposure)</span>
-                  <span>Brightness: {qualityReport.lightingScore}/255</span>
-                </div>
-                {!qualityReport.lightingPass && (
-                  <p className="text-amber-700 dark:text-amber-300 mt-0.5">{t('lightingMessage')}</p>
-                )}
-              </div>
-            </div>
-
-            {/* 3. Usability / Oral Pink Content Check */}
-            <div className="flex items-start gap-2.5 text-xs p-2 rounded-lg bg-gray-50 dark:bg-gray-700/50">
-              {qualityReport.oralPass ? (
-                <CheckCircle2 size={16} className="text-green-600 shrink-0 mt-0.5" />
-              ) : (
-                <XCircle size={16} className="text-red-500 shrink-0 mt-0.5" />
-              )}
-              <div className="flex-1">
-                <div className="flex justify-between font-semibold">
-                  <span>{t('usability')}</span>
-                  <span>Oral Content: {qualityReport.oralContentScore}% (Min: 6%)</span>
-                </div>
-                {!qualityReport.oralPass && (
-                  <p className="text-amber-700 dark:text-amber-300 mt-0.5">{t('usabilityMessage')}</p>
-                )}
-              </div>
-            </div>
-          </Card>
-        )}
-
-        {/* Demo Mode Section */}
-        <Card className="bg-gradient-to-r from-teal-50 to-coral-50 dark:from-teal-950/20 dark:to-coral-950/20 border-teal-200 dark:border-teal-800">
-          <div className="flex items-center gap-2 mb-2">
-            <Sparkles size={16} className="text-teal-600" />
-            <h4 className="text-xs font-bold uppercase tracking-wide text-teal-800 dark:text-teal-300">
-              {t('demoMode')} (Live Test Bench)
-            </h4>
-          </div>
-          <p className="text-xs text-gray-600 dark:text-gray-300 mb-3">
-            {lang === 'kn'
-              ? 'ಕ್ಯಾಮರಾ ಇಲ್ಲದೆ ಗುಣಮಟ್ಟದ ಎಚ್ಚರಿಕೆಗಳನ್ನು ಪರೀಕ್ಷಿಸಲು ಮಾದರಿ ಚಿತ್ರಗಳನ್ನು ಪ್ರಯತ್ನಿಸಿ.'
-              : 'Test blur and lighting validation logic live using generated oral tissue samples.'}
-          </p>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              onClick={() => loadDemoSample(false)}
-              className="py-2 px-3 text-xs font-semibold rounded-xl bg-white dark:bg-gray-800 text-teal-700 dark:text-teal-300 border border-teal-300 shadow-xs hover:bg-teal-50"
-            >
-              ✅ {t('clearSample')}
-            </button>
-            <button
-              onClick={() => loadDemoSample(true)}
-              className="py-2 px-3 text-xs font-semibold rounded-xl bg-white dark:bg-gray-800 text-coral-600 dark:text-coral-400 border border-coral-300 shadow-xs hover:bg-coral-50"
-            >
-              ⚠️ {t('blurrySample')}
-            </button>
-          </div>
-        </Card>
-
-        {/* Recent Local Captures */}
-        {recentImages.length > 0 && (
-          <div>
-            <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-              <ImageIcon size={14} />
-              {lang === 'kn' ? 'ಸ್ಥಳೀಯ ಗ್ಯಾಲರಿ' : 'Recently Saved Captures'}
-            </h4>
-            <div className="grid grid-cols-3 gap-2">
-              {recentImages.map((img) => (
-                <div key={img.id} className="relative aspect-square rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-100">
-                  <img src={img.thumbnail} alt="Oral site" className="w-full h-full object-cover" />
-                  <span className={`absolute bottom-1 right-1 text-[9px] font-bold px-1.5 py-0.5 rounded ${img.qualityPassed ? 'bg-green-600 text-white' : 'bg-amber-600 text-white'}`}>
-                    {img.site || 'Mouth'}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        </div>
       </div>
     </Layout>
   );

@@ -21,6 +21,8 @@ import {
   Activity,
   Flame,
   Eye,
+  PhoneCall,
+  CheckCircle2,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import Layout from '../components/Layout';
@@ -74,11 +76,11 @@ export default function Home() {
     return allScreenings.filter((s) => s.riskLevel === 'HIGH').length;
   }, [allScreenings]);
 
-  // Recent 3 screenings
-  const recent3 = useMemo(() => {
+  // Recent 5 screenings
+  const recentScreenings = useMemo(() => {
     return [...allScreenings]
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-      .slice(0, 3);
+      .slice(0, 5);
   }, [allScreenings]);
 
   // Time based greeting
@@ -97,8 +99,6 @@ export default function Home() {
       route: '/screen',
       icon: ClipboardList,
       gradient: 'from-teal-600 to-teal-700',
-      iconColor: 'text-white',
-      accent: 'bg-teal-600',
     },
     {
       title: t('captureImage'),
@@ -106,8 +106,6 @@ export default function Home() {
       route: '/capture',
       icon: Camera,
       gradient: 'from-rose-500 to-coral-500',
-      iconColor: 'text-white',
-      accent: 'bg-rose-500',
     },
     {
       title: t('childCare'),
@@ -115,8 +113,6 @@ export default function Home() {
       route: '/child-care',
       icon: Baby,
       gradient: 'from-pink-500 to-rose-600',
-      iconColor: 'text-white',
-      accent: 'bg-pink-500',
     },
     {
       title: t('selfExam'),
@@ -124,8 +120,6 @@ export default function Home() {
       route: '/self-exam',
       icon: Eye,
       gradient: 'from-indigo-600 to-indigo-700',
-      iconColor: 'text-white',
-      accent: 'bg-indigo-600',
     },
     {
       title: t('habitCoach'),
@@ -133,8 +127,6 @@ export default function Home() {
       route: '/habit-coach',
       icon: Flame,
       gradient: 'from-amber-500 to-orange-600',
-      iconColor: 'text-white',
-      accent: 'bg-amber-500',
     },
     {
       title: t('dashboard'),
@@ -142,283 +134,325 @@ export default function Home() {
       route: '/dashboard',
       icon: BarChart3,
       gradient: 'from-emerald-600 to-teal-700',
-      iconColor: 'text-white',
-      accent: 'bg-emerald-600',
     },
   ];
 
   return (
     <Layout showDisclaimer>
-      <div className="max-w-xl mx-auto px-4 py-4 space-y-4">
-        {/* Hero Welcome Card with Karnataka Healthcare Accent */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-teal-700 via-teal-800 to-slate-900 text-white p-5 shadow-md">
-          {/* Subtle Background Glow Circles */}
-          <div className="absolute -top-12 -right-12 w-44 h-44 bg-teal-400/20 rounded-full blur-2xl pointer-events-none" />
-          <div className="absolute -bottom-10 -left-10 w-36 h-36 bg-coral-500/20 rounded-full blur-xl pointer-events-none" />
+      <div className="space-y-5">
+        {/* Responsive Grid: Phone (1 column) vs Desktop PC (Multi-column Dashboard) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          {/* ── Left / Main Column (lg:col-span-8) ──────────────────────────────── */}
+          <div className="lg:col-span-8 space-y-5">
+            {/* Hero Welcome Card */}
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-teal-700 via-teal-800 to-slate-900 text-white p-5 sm:p-7 shadow-md">
+              <div className="absolute -top-12 -right-12 w-52 h-52 bg-teal-400/20 rounded-full blur-2xl pointer-events-none" />
+              <div className="absolute -bottom-10 -left-10 w-44 h-44 bg-coral-500/20 rounded-full blur-xl pointer-events-none" />
 
-          <div className="relative z-10 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md text-[11px] font-semibold text-teal-100 border border-white/20">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                {isHealthWorker
-                  ? lang === 'kn'
-                    ? 'ಆಶಾ / ಎಎನ್ಎಂ ಕಾರ್ಯಕರ್ತ ಮೋಡ್'
-                    : 'ASHA / ANM Worker Mode'
-                  : lang === 'kn'
-                  ? 'ಸಾರ್ವಜನಿಕ / ರೋಗಿ ಮೋಡ್'
-                  : 'Individual Health Mode'}
-              </span>
+              <div className="relative z-10 space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md text-xs font-semibold text-teal-100 border border-white/20">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    {isHealthWorker
+                      ? lang === 'kn'
+                        ? 'ಆಶಾ / ಎಎನ್ಎಂ ಕಾರ್ಯಕರ್ತ ಪೋರ್ಟಲ್'
+                        : 'ASHA / ANM Healthcare Portal'
+                      : lang === 'kn'
+                      ? 'ಸಾರ್ವಜನಿಕ ಆರೋಗ್ಯ ಪೋರ್ಟಲ್'
+                      : 'Citizen Healthcare Mode'}
+                  </span>
 
-              {isHealthWorker && (
-                <button
-                  onClick={() => navigate('/camp')}
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-coral-500 hover:bg-coral-600 text-white text-[11px] font-bold shadow-xs active:scale-95 transition-all"
-                >
-                  <Tent size={13} />
-                  {t('campMode')}
-                </button>
-              )}
-            </div>
+                  {isHealthWorker && (
+                    <button
+                      onClick={() => navigate('/camp')}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-coral-500 hover:bg-coral-600 text-white text-xs font-bold shadow-xs active:scale-95 transition-all"
+                    >
+                      <Tent size={14} />
+                      {t('campMode')}
+                    </button>
+                  )}
+                </div>
 
-            <div>
-              <h2 className="text-xl font-black tracking-tight text-white">
-                {greeting}, {isHealthWorker ? 'ASHA Worker' : 'Welcome'}!
-              </h2>
-              <p className="text-xs text-teal-100/90 font-medium leading-relaxed mt-0.5">
-                {lang === 'kn'
-                  ? 'ಕರ್ನಾಟಕದ ಬಾಯಿ ಕ್ಯಾನ್ಸರ್ ಮುಂಚಿತ ಪತ್ತೆ ಮತ್ತು ರೆಫರಲ್ ಟ್ರ್ಯಾಕಿಂಗ್ ವ್ಯವಸ್ಥೆ.'
-                  : 'Empowering early oral cancer screening, clinical capture guard, and referral tracking.'}
-              </p>
-            </div>
+                <div>
+                  <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
+                    {greeting}, {isHealthWorker ? 'ASHA Healthcare Worker' : 'Welcome'}!
+                  </h2>
+                  <p className="text-xs sm:text-sm text-teal-100/90 font-medium leading-relaxed mt-1 max-w-2xl">
+                    {lang === 'kn'
+                      ? 'ಕರ್ನಾಟಕದ ಗ್ರಾಮೀಣ ಮತ್ತು ನಗರ ಪ್ರದೇಶಗಳಲ್ಲಿ ಬಾಯಿ ಕ್ಯಾನ್ಸರ್ ಮುಂಚಿತ ಪತ್ತೆ, ಇಮೇಜ್ ಗಾರ್ಡ್ ಮತ್ತು ರೆಫರಲ್ ಟ್ರ್ಯಾಕಿಂಗ್.'
+                      : 'Comprehensive oral cancer triage, on-device camera quality guard, and seamless referral closure continuum.'}
+                  </p>
+                </div>
 
-            {/* Quick Action Banner inside Hero */}
-            <div className="pt-2 flex items-center justify-between border-t border-white/10">
-              <span className="text-[11px] text-teal-200">
-                {allScreenings.length} {lang === 'kn' ? 'ಪ್ರಕರಣಗಳು ದಾಖಲಾಗಿವೆ' : 'cases on device'}
-              </span>
-              <button
-                onClick={() => navigate('/screen')}
-                className="bg-white hover:bg-teal-50 text-teal-800 text-xs font-bold py-1.5 px-3.5 rounded-xl shadow-xs flex items-center gap-1 active:scale-95 transition-all"
-              >
-                + {t('newScreening')}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* 4 Stat Cards Row */}
-        <div className="grid grid-cols-2 gap-2.5">
-          <StatCard
-            label={t('todayScreenings')}
-            value={todayCount}
-            icon={<ClipboardList size={20} />}
-            color="teal"
-            onClick={() => navigate('/cases')}
-          />
-          <StatCard
-            label={t('overdueFollowUps')}
-            value={overdueScreenings.length}
-            icon={<AlertTriangle size={20} />}
-            color="amber"
-            alert={overdueScreenings.length > 0}
-            onClick={() => navigate('/cases')}
-          />
-          <StatCard
-            label={t('highRiskCases')}
-            value={highRiskCount}
-            icon={<Heart size={20} />}
-            color="red"
-            alert={highRiskCount > 0}
-            onClick={() => navigate('/cases')}
-          />
-          <StatCard
-            label={lang === 'kn' ? 'ಒಟ್ಟು ರೋಗಿಗಳು' : 'Total Patients'}
-            value={allPatients.length}
-            icon={<Users size={20} />}
-            color="blue"
-            onClick={() => navigate('/cases')}
-          />
-        </div>
-
-        {/* 6 Quick Action Grid */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between px-0.5">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-              {t('quickActions')}
-            </h3>
-            <span className="text-[10px] text-teal-600 dark:text-teal-400 font-semibold">
-              {lang === 'kn' ? 'ಆಫ್‌ಲೈನ್ ಸಿದ್ಧ' : 'Offline Ready'}
-            </span>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2.5">
-            {quickActions.map((action) => {
-              const IconComp = action.icon;
-              return (
-                <div
-                  key={action.route}
-                  onClick={() => navigate(action.route)}
-                  className="card-interactive p-3.5 flex items-center gap-3 group"
-                >
-                  <div
-                    className={`w-11 h-11 rounded-2xl bg-gradient-to-tr ${action.gradient} flex items-center justify-center text-white shadow-xs shrink-0 group-hover:scale-105 transition-transform`}
-                  >
-                    <IconComp size={20} />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate">
-                      {action.title}
-                    </h4>
-                    <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate">
-                      {action.desc}
-                    </p>
+                <div className="pt-3 flex flex-wrap items-center justify-between gap-3 border-t border-white/10">
+                  <span className="text-xs text-teal-200">
+                    {allScreenings.length} {lang === 'kn' ? 'ಪ್ರಕರಣಗಳು ದಾಖಲಾಗಿವೆ' : 'cases recorded locally'}
+                  </span>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => navigate('/screen')}
+                      className="bg-white hover:bg-teal-50 text-teal-800 text-xs sm:text-sm font-bold py-2 px-4 rounded-xl shadow-xs flex items-center gap-1.5 active:scale-95 transition-all"
+                    >
+                      + {t('newScreening')}
+                    </button>
+                    <button
+                      onClick={() => navigate('/cases')}
+                      className="bg-white/15 hover:bg-white/25 text-white text-xs sm:text-sm font-bold py-2 px-4 rounded-xl backdrop-blur-sm transition-all"
+                    >
+                      {t('cases')} & Kanban
+                    </button>
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        </div>
+              </div>
+            </div>
 
-        {/* Overdue Follow-ups Section */}
-        {isHealthWorker && overdueScreenings.length > 0 && (
-          <div className="space-y-2">
-            <div className="flex items-center justify-between px-0.5">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-rose-600 flex items-center gap-1.5">
-                <AlertTriangle size={13} className="text-rose-500 animate-pulse" />
-                {t('overdueFollowUps')} ({overdueScreenings.length})
-              </h3>
-              <button
+            {/* 4 Stat Cards Row (Responsive Grid: 2 cols on mobile, 4 cols on PC) */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <StatCard
+                label={t('todayScreenings')}
+                value={todayCount}
+                icon={<ClipboardList size={22} />}
+                color="teal"
                 onClick={() => navigate('/cases')}
-                className="text-[11px] font-bold text-teal-600 dark:text-teal-400 flex items-center gap-0.5"
-              >
-                {t('viewAll')} <ChevronRight size={13} />
-              </button>
+              />
+              <StatCard
+                label={t('overdueFollowUps')}
+                value={overdueScreenings.length}
+                icon={<AlertTriangle size={22} />}
+                color="amber"
+                alert={overdueScreenings.length > 0}
+                onClick={() => navigate('/cases')}
+              />
+              <StatCard
+                label={t('highRiskCases')}
+                value={highRiskCount}
+                icon={<Heart size={22} />}
+                color="red"
+                alert={highRiskCount > 0}
+                onClick={() => navigate('/cases')}
+              />
+              <StatCard
+                label={lang === 'kn' ? 'ಒಟ್ಟು ರೋಗಿಗಳು' : 'Total Patients'}
+                value={allPatients.length}
+                icon={<Users size={22} />}
+                color="blue"
+                onClick={() => navigate('/cases')}
+              />
             </div>
 
-            <div className="space-y-2">
-              {overdueScreenings.slice(0, 3).map((s) => {
-                const p = patientMap.get(s.patientId);
-                const daysDiff = Math.max(
-                  1,
-                  Math.floor((Date.now() - new Date(s.createdAt).getTime()) / (1000 * 60 * 60 * 24)) - 14
-                );
-                return (
-                  <Card
-                    key={s.id}
-                    onClick={() => navigate(`/cases/${s.id}`)}
-                    className="p-3 border-l-4 border-l-rose-500 flex items-center justify-between cursor-pointer hover:shadow-md transition-shadow"
-                  >
-                    <div className="space-y-0.5 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-xs text-slate-900 dark:text-white truncate">
-                          {p?.name || 'Patient'}
-                        </span>
-                        <RiskBadge level={s.riskLevel} />
-                      </div>
-                      <p className="text-[11px] text-slate-500">
-                        {p?.village || 'Village'} • {s.referralFacility || 'District Hospital'}
-                      </p>
-                    </div>
-
-                    <div className="shrink-0 pl-2">
-                      <OverdueBadge days={daysDiff} />
-                    </div>
-                  </Card>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Recent Cases Section */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between px-0.5">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-              {t('recentCases')}
-            </h3>
-            <button
-              onClick={() => navigate('/cases')}
-              className="text-[11px] font-bold text-teal-600 dark:text-teal-400 flex items-center gap-0.5"
-            >
-              {t('viewAll')} <ChevronRight size={13} />
-            </button>
-          </div>
-
-          {recent3.length === 0 ? (
-            <EmptyState
-              icon={<ClipboardList size={36} className="text-slate-300" />}
-              title={lang === 'kn' ? 'ಇನ್ನೂ ತಪಾಸಣೆ ನಡೆದಿಲ್ಲ' : 'No screenings recorded yet'}
-              subtitle={
-                lang === 'kn'
-                  ? 'ಹೊಸ ತಪಾಸಣೆ ಪ್ರಾರಂಭಿಸಿ ಅಥವಾ ಡೆಮೋ ಡೇಟಾ ಲೋಡ್ ಮಾಡಿ.'
-                  : 'Start a new oral screening or explore with sample patient data.'
-              }
-              action={() => navigate('/screen')}
-              actionLabel={t('newScreening')}
-            />
-          ) : (
-            <div className="space-y-2">
-              {recent3.map((s) => {
-                const p = patientMap.get(s.patientId);
-                return (
-                  <Card
-                    key={s.id}
-                    onClick={() => navigate(`/cases/${s.id}`)}
-                    className="p-3 flex items-center justify-between cursor-pointer hover:shadow-md transition-shadow"
-                  >
-                    <div className="space-y-0.5 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-xs text-slate-900 dark:text-white truncate">
-                          {p?.name || 'Patient'}
-                        </span>
-                        <RiskBadge level={s.riskLevel} />
-                      </div>
-                      <div className="flex items-center gap-3 text-[11px] text-slate-400">
-                        <span>{p?.village || 'Village'}</span>
-                        <span>•</span>
-                        <span>{new Date(s.createdAt).toLocaleDateString()}</span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
-                        {t(`stages.${s.stage}`)}
-                      </span>
-                      <ChevronRight size={14} className="text-slate-400" />
-                    </div>
-                  </Card>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* Ask MukhaRaksha AI Floating Banner */}
-        <div
-          onClick={() => navigate('/chat')}
-          className="p-4 rounded-2xl bg-gradient-to-r from-teal-500/10 via-emerald-500/10 to-teal-500/15 border border-teal-500/30 flex items-center justify-between cursor-pointer active:scale-98 transition-all shadow-xs"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-teal-600 text-white flex items-center justify-center shadow-xs">
-              <MessageSquare size={18} />
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <h4 className="text-xs font-bold text-slate-900 dark:text-white">
-                  {t('chatTitle')}
-                </h4>
-                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-teal-600 text-white">
-                  AI / FAQ
+            {/* 6 Quick Action Grid (Responsive: 2 cols on mobile, 3 cols on PC) */}
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between px-0.5">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                  {t('quickActions')}
+                </h3>
+                <span className="text-[11px] text-teal-600 dark:text-teal-400 font-semibold">
+                  {lang === 'kn' ? 'ಆಫ್‌ಲೈನ್ ಲಭ್ಯವಿದೆ' : 'Offline Ready'}
                 </span>
               </div>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                {lang === 'kn'
-                  ? 'ಬಾಯಿ ಆರೋಗ್ಯ, ಅಡಿಕೆ ಮತ್ತು ಕ್ಯಾನ್ಸರ್ ಪ್ರಶ್ನೆಗಳಿಗೆ ತಕ್ಷಣದ ಉತ್ತರ'
-                  : 'Ask clinical guidance, areca risks, and tobacco cessation'}
-              </p>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {quickActions.map((action) => {
+                  const IconComp = action.icon;
+                  return (
+                    <div
+                      key={action.route}
+                      onClick={() => navigate(action.route)}
+                      className="card-interactive p-4 flex flex-col justify-between gap-3 group"
+                    >
+                      <div
+                        className={`w-11 h-11 rounded-2xl bg-gradient-to-tr ${action.gradient} flex items-center justify-center text-white shadow-xs shrink-0 group-hover:scale-105 transition-transform`}
+                      >
+                        <IconComp size={22} />
+                      </div>
+                      <div>
+                        <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white leading-tight">
+                          {action.title}
+                        </h4>
+                        <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 truncate">
+                          {action.desc}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Recent Cases Section */}
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between px-0.5">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                  {t('recentCases')}
+                </h3>
+                <button
+                  onClick={() => navigate('/cases')}
+                  className="text-xs font-bold text-teal-600 dark:text-teal-400 flex items-center gap-0.5 hover:underline"
+                >
+                  {t('viewAll')} <ChevronRight size={14} />
+                </button>
+              </div>
+
+              {recentScreenings.length === 0 ? (
+                <EmptyState
+                  icon={<ClipboardList size={38} className="text-slate-300" />}
+                  title={lang === 'kn' ? 'ಇನ್ನೂ ತಪಾಸಣೆ ನಡೆದಿಲ್ಲ' : 'No screenings recorded yet'}
+                  subtitle={
+                    lang === 'kn'
+                      ? 'ಹೊಸ ತಪಾಸಣೆ ಪ್ರಾರಂಭಿಸಿ ಅಥವಾ ಡೆಮೋ ಡೇಟಾ ಲೋಡ್ ಮಾಡಿ.'
+                      : 'Start a new oral screening or explore with sample patient data.'
+                  }
+                  action={() => navigate('/screen')}
+                  actionLabel={t('newScreening')}
+                />
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {recentScreenings.map((s) => {
+                    const p = patientMap.get(s.patientId);
+                    return (
+                      <Card
+                        key={s.id}
+                        onClick={() => navigate(`/cases/${s.id}`)}
+                        className="p-3.5 flex items-center justify-between cursor-pointer hover:shadow-md transition-shadow"
+                      >
+                        <div className="space-y-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white truncate">
+                              {p?.name || 'Patient'}
+                            </span>
+                            <RiskBadge level={s.riskLevel} />
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-slate-400">
+                            <span>{p?.village || 'Village'}</span>
+                            <span>•</span>
+                            <span>{new Date(s.createdAt).toLocaleDateString()}</span>
+                          </div>
+                        </div>
+
+                        <ChevronRight size={16} className="text-slate-400 shrink-0 ml-2" />
+                      </Card>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
-          <ArrowRight size={16} className="text-teal-600 dark:text-teal-400 shrink-0" />
+
+          {/* ── Right Column (lg:col-span-4 on PC) ─────────────────────────────── */}
+          <div className="lg:col-span-4 space-y-4">
+            {/* Ask MukhaRaksha AI Quick Assistant Box */}
+            <Card className="p-4 bg-gradient-to-br from-teal-500/10 via-emerald-500/5 to-teal-500/15 border-teal-500/30 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-teal-600 text-white flex items-center justify-center shadow-xs">
+                    <MessageSquare size={18} />
+                  </div>
+                  <div>
+                    <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
+                      {t('chatTitle')}
+                    </h4>
+                    <span className="text-[10px] text-teal-700 dark:text-teal-300 font-semibold">
+                      Clinical AI Assistant
+                    </span>
+                  </div>
+                </div>
+                <span className="text-[9px] bg-teal-600 text-white px-2 py-0.5 rounded-full font-bold">
+                  Active
+                </span>
+              </div>
+
+              <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                {lang === 'kn'
+                  ? 'ಬಾಯಿ ಹುಣ್ಣು, ಅಡಿಕೆ ದುಷ್ಪರಿಣಾಮ, ಲ್ಯುಕೋಪ್ಲಾಕಿಯಾ ಅಥವಾ ತಂಬಾಕು ಬಿಡುವ ಕುರಿತು ಪ್ರಶ್ನೆಗಳನ್ನು ಕೇಳಿ.'
+                  : 'Ask clinical guidance, areca nut carcinogenicity, or tobacco cessation distraction techniques.'}
+              </p>
+
+              <button
+                onClick={() => navigate('/chat')}
+                className="btn-primary w-full py-2.5 text-xs font-bold"
+              >
+                Launch AI Assistant <ArrowRight size={14} />
+              </button>
+            </Card>
+
+            {/* Overdue Follow-ups Alert List */}
+            {isHealthWorker && (
+              <Card className="p-4 space-y-3 border-rose-200 dark:border-rose-900">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-rose-600 flex items-center gap-1.5">
+                    <AlertTriangle size={15} className="text-rose-500 animate-pulse" />
+                    {t('overdueFollowUps')} ({overdueScreenings.length})
+                  </h3>
+                  <button
+                    onClick={() => navigate('/cases')}
+                    className="text-[11px] font-bold text-teal-600 hover:underline"
+                  >
+                    Manage
+                  </button>
+                </div>
+
+                {overdueScreenings.length === 0 ? (
+                  <div className="p-4 text-center rounded-xl bg-emerald-50 dark:bg-emerald-950/20 text-xs text-emerald-700 dark:text-emerald-300 flex items-center justify-center gap-2">
+                    <CheckCircle2 size={16} />
+                    <span>No overdue cases pending!</span>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {overdueScreenings.slice(0, 4).map((s) => {
+                      const p = patientMap.get(s.patientId);
+                      const daysDiff = Math.max(
+                        1,
+                        Math.floor((Date.now() - new Date(s.createdAt).getTime()) / (1000 * 60 * 60 * 24)) - 14
+                      );
+                      return (
+                        <div
+                          key={s.id}
+                          onClick={() => navigate(`/cases/${s.id}`)}
+                          className="p-2.5 rounded-xl bg-rose-50/50 dark:bg-rose-950/20 border border-rose-200/60 dark:border-rose-900/60 flex items-center justify-between cursor-pointer hover:bg-rose-50 transition-colors text-xs"
+                        >
+                          <div className="min-w-0 space-y-0.5">
+                            <span className="font-bold text-slate-900 dark:text-white truncate block">
+                              {p?.name || 'Patient'}
+                            </span>
+                            <span className="text-[11px] text-slate-500">{p?.village}</span>
+                          </div>
+                          <OverdueBadge days={daysDiff} />
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </Card>
+            )}
+
+            {/* National Tobacco Quitline Banner */}
+            <Card className="p-4 bg-gradient-to-r from-red-50 to-coral-50 dark:from-red-950/30 dark:to-coral-950/30 border-red-200 dark:border-red-900 space-y-2.5">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-full bg-red-600 text-white flex items-center justify-center shrink-0">
+                  <PhoneCall size={16} />
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-red-700 dark:text-red-400 block">
+                    National Quitline (India)
+                  </span>
+                  <span className="text-base font-black text-red-900 dark:text-red-200">
+                    1800-11-2356
+                  </span>
+                </div>
+              </div>
+              <p className="text-xs text-slate-600 dark:text-slate-300">
+                {lang === 'kn'
+                  ? 'ಉಚಿತ ಆಪ್ತಸಮಾಲೋಚನೆ ಪಡೆಯಲು ಕರೆ ಮಾಡಿ.'
+                  : 'Toll-free tobacco cessation support in Kannada & English.'}
+              </p>
+              <a
+                href="tel:1800112356"
+                className="btn-danger w-full py-2 text-xs font-bold text-center block"
+              >
+                Call Quitline (1800-11-2356)
+              </a>
+            </Card>
+          </div>
         </div>
       </div>
     </Layout>
