@@ -28,6 +28,7 @@ import type {
   Patient,
   Screening as ScreeningModel,
   CapturedImage,
+  QuestionnaireAnswer,
 } from '../types/models';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -91,6 +92,7 @@ export default function Screening() {
     numbness: false,
     neckSwelling: false,
   });
+  const [questionnaireAnswers, setQuestionnaireAnswers] = useState<Record<string, QuestionnaireAnswer>>({});
 
   // Step 3: Oral Findings
   const [findings, setFindings] = useState<OralSiteFinding[]>(
@@ -146,7 +148,31 @@ export default function Screening() {
   };
 
   // Step 4 Risk Calculation
-  const riskResult = calculateRisk(history, symptoms, findings);
+  const riskResult = calculateRisk(history, symptoms, findings, questionnaireAnswers);
+
+  const renderAnswerQuestion = (id: string, number: number, prompt: string, detail: string) => (
+    <div key={id} className="rounded-xl border border-slate-200 dark:border-slate-700 p-4 space-y-2">
+      <div className="font-semibold text-sm text-slate-900 dark:text-slate-100">{number}. {prompt}</div>
+      <p className="text-xs text-slate-500 dark:text-slate-400">{detail}</p>
+      <div className="flex flex-wrap gap-2" role="group" aria-label={prompt}>
+        {(['yes', 'no', 'not_sure'] as const).map((answer) => (
+          <button
+            key={answer}
+            type="button"
+            aria-pressed={questionnaireAnswers[id] === answer}
+            onClick={() => setQuestionnaireAnswers((current) => ({ ...current, [id]: answer }))}
+            className={`rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ${
+              questionnaireAnswers[id] === answer
+                ? 'border-teal-600 bg-teal-600 text-white'
+                : 'border-slate-300 bg-white text-slate-700 hover:border-teal-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200'
+            }`}
+          >
+            {answer === 'yes' ? t('yes') : answer === 'no' ? t('no') : t('notSure')}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
 
   // Save to IndexedDB
   const handleSaveScreening = async () => {
@@ -172,6 +198,7 @@ export default function Screening() {
         patientId,
         history,
         symptoms,
+        questionnaireAnswers,
         oralFindings: findings,
         imageIds: attachedImages.map((img) => img.id),
         riskLevel: riskResult.level,
@@ -421,36 +448,13 @@ export default function Screening() {
                 {t('tobaccoUse')} & Substance Habits
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <Checkbox
-                  checked={history.tobaccoSmoking}
-                  onChange={(v) => setHistory({ ...history, tobaccoSmoking: v })}
-                  label={t('tobaccoSmoking')}
-                />
-                <Checkbox
-                  checked={history.tobaccoChewing}
-                  onChange={(v) => setHistory({ ...history, tobaccoChewing: v })}
-                  label={t('tobaccoChewing')}
-                />
-                <Checkbox
-                  checked={history.gutka}
-                  onChange={(v) => setHistory({ ...history, gutka: v })}
-                  label={t('gutka')}
-                />
-                <Checkbox
-                  checked={history.arecaNutPan}
-                  onChange={(v) => setHistory({ ...history, arecaNutPan: v })}
-                  label={t('arecaNutPan')}
-                />
-                <Checkbox
-                  checked={history.alcohol}
-                  onChange={(v) => setHistory({ ...history, alcohol: v })}
-                  label={t('alcohol')}
-                />
-              </div>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Questions 11–13: Risk factors</p>
+              {renderAnswerQuestion('tobacco', 11, 'Do you use tobacco in any form, including cigarettes, beedis, chewing tobacco, gutkha or paan with tobacco?', 'Tobacco increases oral cancer risk.')}
+              {renderAnswerQuestion('areca', 12, 'Do you regularly chew betel nut/areca nut or paan without tobacco?', 'Areca nut itself is a risk factor, even without tobacco.')}
+              {renderAnswerQuestion('alcohol', 13, 'Do you drink alcohol regularly?', 'Alcohol can increase oral cancer risk, especially when combined with tobacco.')}
 
               {/* Conditional duration and frequency */}
-              {(history.tobaccoSmoking || history.tobaccoChewing || history.gutka || history.arecaNutPan) && (
+              {(questionnaireAnswers.tobacco === 'yes' || history.tobaccoSmoking || history.tobaccoChewing || history.gutka || history.arecaNutPan) && (
                 <div className="p-3 bg-teal-50 dark:bg-teal-950/20 rounded-xl space-y-3 mt-2 border border-teal-200 dark:border-teal-800">
                   <div className="text-xs font-semibold text-teal-900 dark:text-teal-200">
                     {lang === 'kn' ? 'ತಂಬಾಕು ವಿವರಣೆ' : 'Tobacco Exposure Details'}
@@ -530,84 +534,17 @@ export default function Screening() {
             </div>
 
             <Card className="space-y-4 p-5">
-              <div className="p-3.5 rounded-xl bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/60 shadow-2xs">
-                <Checkbox
-                  checked={symptoms.nonHealingUlcer}
-                  onChange={(v) => setSymptoms({ ...symptoms, nonHealingUlcer: v })}
-                  label={t('nonHealingUlcer')}
-                  className="font-bold text-amber-900 dark:text-amber-200"
-                />
-
-                {symptoms.nonHealingUlcer && (
-                  <div className="ml-7 mt-2 pt-2 border-t border-amber-200/60 dark:border-amber-800/60">
-                    <label className="block text-xs font-semibold text-amber-900 dark:text-amber-200 mb-1">
-                      {t('ulcerDuration')}
-                    </label>
-                    <input
-                      type="number"
-                      value={symptoms.nonHealingUlcerDuration || ''}
-                      onChange={(e) =>
-                        setSymptoms({ ...symptoms, nonHealingUlcerDuration: parseInt(e.target.value) || undefined })
-                      }
-                      placeholder="e.g. 3"
-                      className="input-field text-sm py-1.5 max-w-xs"
-                    />
-                  </div>
-                )}
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <Checkbox
-                  checked={symptoms.whitePatches}
-                  onChange={(v) => setSymptoms({ ...symptoms, whitePatches: v })}
-                  label={t('whitePatches')}
-                />
-                <Checkbox
-                  checked={symptoms.redPatches}
-                  onChange={(v) => setSymptoms({ ...symptoms, redPatches: v })}
-                  label={t('redPatches')}
-                />
-                <Checkbox
-                  checked={symptoms.lumpOrThickening}
-                  onChange={(v) => setSymptoms({ ...symptoms, lumpOrThickening: v })}
-                  label={t('lumpOrThickening')}
-                />
-                <Checkbox
-                  checked={symptoms.difficultyOpeningMouth}
-                  onChange={(v) => setSymptoms({ ...symptoms, difficultyOpeningMouth: v })}
-                  label={t('difficultyOpeningMouth')}
-                />
-                <Checkbox
-                  checked={symptoms.difficultySwallowing}
-                  onChange={(v) => setSymptoms({ ...symptoms, difficultySwallowing: v })}
-                  label={t('difficultySwallowing')}
-                />
-                <Checkbox
-                  checked={symptoms.painOrBurning}
-                  onChange={(v) => setSymptoms({ ...symptoms, painOrBurning: v })}
-                  label={t('painOrBurning')}
-                />
-                <Checkbox
-                  checked={symptoms.loosTeeth}
-                  onChange={(v) => setSymptoms({ ...symptoms, loosTeeth: v })}
-                  label={t('loosTeeth')}
-                />
-                <Checkbox
-                  checked={symptoms.unexplainedBleeding}
-                  onChange={(v) => setSymptoms({ ...symptoms, unexplainedBleeding: v })}
-                  label={t('unexplainedBleeding')}
-                />
-                <Checkbox
-                  checked={symptoms.numbness}
-                  onChange={(v) => setSymptoms({ ...symptoms, numbness: v })}
-                  label={t('numbness')}
-                />
-                <Checkbox
-                  checked={symptoms.neckSwelling}
-                  onChange={(v) => setSymptoms({ ...symptoms, neckSwelling: v })}
-                  label={t('neckSwelling')}
-                />
-              </div>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Questions 1–10: Symptoms</p>
+              {renderAnswerQuestion('ulcer', 1, 'Do you have a mouth ulcer or sore that has not healed within 2 weeks?', 'Include sores on the tongue, gums, cheeks, lips or roof/floor of the mouth.')}
+              {renderAnswerQuestion('patches', 2, 'Have you noticed a red patch, a white patch, or a red-and-white patch inside your mouth?', 'Consider patches that persist or cannot be wiped away.')}
+              {renderAnswerQuestion('lump', 3, 'Have you noticed a lump, thickened area, or unusual growth in your mouth or on your lip?', 'Include any new or persistent change.')}
+              {renderAnswerQuestion('pain', 4, 'Do you have persistent pain in your mouth or tongue without a clear reason?', 'Think about pain that continues or keeps returning.')}
+              {renderAnswerQuestion('movement', 5, 'Do you have difficulty chewing, swallowing, or moving your tongue or jaw?', 'Include a new or persistent change.')}
+              {renderAnswerQuestion('numbness', 6, 'Have you experienced numbness in your tongue, lip, or another part of your mouth?', 'Consider unexplained or persistent numbness.')}
+              {renderAnswerQuestion('throat', 7, 'Do you have persistent hoarseness, a sore throat, or the feeling that something is stuck in your throat?', 'Especially if it does not improve.')}
+              {renderAnswerQuestion('bleeding', 8, 'Have you noticed unexplained bleeding in your mouth?', 'Bleeding not clearly caused by brushing, an injury or another known cause.')}
+              {renderAnswerQuestion('neck', 9, 'Have you noticed a lump in your neck, or one side of your neck becoming swollen?', 'Especially if it persists or grows.')}
+              {renderAnswerQuestion('earache', 10, 'Have you noticed a persistent earache on one side without an obvious ear problem?', 'Particularly alongside other mouth or throat changes.')}
             </Card>
           </div>
         )}

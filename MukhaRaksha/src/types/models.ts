@@ -15,6 +15,7 @@ export type CaseStage =
   | 'lost_to_follow_up';
 
 export type FindingStatus = 'normal' | 'suspicious' | 'not_examined';
+export type QuestionnaireAnswer = 'yes' | 'no' | 'not_sure';
 
 export interface Patient {
   id: string;
@@ -85,6 +86,7 @@ export interface Screening {
   patient?: Patient;
   history: HistoryQuestionnaire;
   symptoms: SymptomQuestionnaire;
+  questionnaireAnswers?: Record<string, QuestionnaireAnswer>;
   oralFindings: OralSiteFinding[];
   imageIds: string[];
   riskLevel: RiskLevel;

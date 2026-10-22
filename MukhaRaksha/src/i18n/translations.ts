@@ -319,6 +319,7 @@ const translations = {
     // Common
     yes: 'Yes',
     no: 'No',
+    notSure: 'Not sure',
     save: 'Save',
     cancel: 'Cancel',
     delete: 'Delete',
@@ -660,6 +661,7 @@ const translations = {
     // Common
     yes: 'ಹೌದು',
     no: 'ಇಲ್ಲ',
+    notSure: 'ಖಚಿತವಿಲ್ಲ',
     save: 'ಉಳಿಸಿ',
     cancel: 'ರದ್ದುಮಾಡಿ',
     delete: 'ಅಳಿಸಿ',

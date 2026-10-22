@@ -1,5 +1,5 @@
 // Transparent rule-based risk scoring engine
-import type { HistoryQuestionnaire, SymptomQuestionnaire, OralSiteFinding, RiskLevel } from '../types/models';
+import type { HistoryQuestionnaire, SymptomQuestionnaire, OralSiteFinding, RiskLevel, QuestionnaireAnswer } from '../types/models';
 
 interface RiskResult {
   level: RiskLevel;
@@ -11,7 +11,8 @@ interface RiskResult {
 export function calculateRisk(
   history: HistoryQuestionnaire,
   symptoms: SymptomQuestionnaire,
-  findings: OralSiteFinding[]
+  findings: OralSiteFinding[],
+  answers?: Record<string, QuestionnaireAnswer>
 ): RiskResult {
   let score = 0;
   const factors: string[] = [];
@@ -24,19 +25,19 @@ export function calculateRisk(
   }
 
   // === HISTORY ===
-  if (history.tobaccoSmoking) {
+  if (answers?.tobacco !== undefined ? answers.tobacco === 'yes' : history.tobaccoSmoking) {
     add(10, 'Tobacco smoking', 'ತಂಬಾಕು ಹೊಗೆ');
   }
-  if (history.tobaccoChewing) {
+  if (answers?.tobacco === undefined && history.tobaccoChewing) {
     add(12, 'Tobacco chewing', 'ತಂಬಾಕು ಅಗಿಯುವುದು');
   }
-  if (history.gutka) {
+  if (answers?.tobacco === undefined && history.gutka) {
     add(14, 'Gutka / Pan masala use', 'ಗುಟ್ಕಾ / ಪಾನ್ ಮಸಾಲಾ');
   }
-  if (history.arecaNutPan) {
+  if (answers?.areca !== undefined ? answers.areca === 'yes' : history.arecaNutPan) {
     add(10, 'Areca nut / Betel leaf (Pan)', 'ಅಡಿಕೆ / ವೀಳ್ಯದ ಎಲೆ');
   }
-  if (history.alcohol) {
+  if (answers?.alcohol !== undefined ? answers.alcohol === 'yes' : history.alcohol) {
     add(8, 'Alcohol consumption', 'ಮದ್ಯಪಾನ');
   }
   if (history.tobaccoDurationYears && history.tobaccoDurationYears >= 10) {
@@ -61,42 +62,50 @@ export function calculateRisk(
   }
 
   // === SYMPTOMS ===
-  if (symptoms.nonHealingUlcer) {
+  if (answers?.ulcer === 'yes' || (answers?.ulcer === undefined && symptoms.nonHealingUlcer)) {
     if (symptoms.nonHealingUlcerDuration && symptoms.nonHealingUlcerDuration >= 3) {
       add(30, `Non-healing ulcer for ${symptoms.nonHealingUlcerDuration} weeks`, `${symptoms.nonHealingUlcerDuration} ವಾರ ಗುಣವಾಗದ ಹುಣ್ಣು`);
     } else {
       add(20, 'Non-healing mouth ulcer (>2 weeks)', '2 ವಾರಕ್ಕಿಂತ ಹೆಚ್ಚು ಗುಣವಾಗದ ಹುಣ್ಣು');
     }
   }
-  if (symptoms.whitePatches) {
+  if (answers?.patches === 'yes') {
+    add(30, 'Persistent red or white mouth patch', 'Persistent red or white mouth patch');
+  } else if (answers?.patches === undefined && symptoms.whitePatches) {
     add(25, 'White patches (Leukoplakia)', 'ಬಿಳಿ ಚುಕ್ಕೆ (ಲ್ಯುಕೋಪ್ಲಾಕಿಯಾ)');
   }
-  if (symptoms.redPatches) {
+  if (answers?.patches === undefined && symptoms.redPatches) {
     add(30, 'Red patches (Erythroplakia - high malignant potential)', 'ಕೆಂಪು ಚುಕ್ಕೆ (ಎರಿಥ್ರೋಪ್ಲಾಕಿಯಾ)');
   }
-  if (symptoms.lumpOrThickening) {
+  if (answers?.lump === 'yes' || (answers?.lump === undefined && symptoms.lumpOrThickening)) {
     add(25, 'Lump or thickening in cheek/lip/neck', 'ಕೆನ್ನೆ/ತುಟಿ/ಕತ್ತಿನಲ್ಲಿ ಗಡ್ಡೆ');
   }
-  if (symptoms.painOrBurning) {
+  if (answers?.pain === 'yes' || (answers?.pain === undefined && symptoms.painOrBurning)) {
     add(10, 'Pain or burning sensation in mouth', 'ಬಾಯಿಯಲ್ಲಿ ನೋವು ಅಥವಾ ಉರಿ');
   }
-  if (symptoms.difficultyOpeningMouth) {
+  if (answers?.movement === 'yes' || (answers?.movement === undefined && symptoms.difficultyOpeningMouth)) {
     add(20, 'Difficulty opening mouth (Trismus/Submucous fibrosis)', 'ಬಾಯಿ ತೆರೆಯಲು ಕಷ್ಟ');
   }
-  if (symptoms.difficultySwallowing) {
+  if (answers?.movement === undefined && symptoms.difficultySwallowing) {
     add(20, 'Difficulty swallowing or speaking', 'ನುಂಗಲು ಅಥವಾ ಮಾತನಾಡಲು ಕಷ್ಟ');
   }
   if (symptoms.loosTeeth) {
     add(15, 'Unexplained loose teeth', 'ಕಾರಣವಿಲ್ಲದ ಸಡಿಲ ಹಲ್ಲುಗಳು');
   }
-  if (symptoms.unexplainedBleeding) {
+  if (answers?.bleeding === 'yes' || (answers?.bleeding === undefined && symptoms.unexplainedBleeding)) {
     add(20, 'Unexplained bleeding in mouth', 'ಕಾರಣವಿಲ್ಲದ ರಕ್ತಸ್ರಾವ');
   }
-  if (symptoms.numbness) {
+  if (answers?.numbness === 'yes' || (answers?.numbness === undefined && symptoms.numbness)) {
     add(15, 'Numbness of lip/tongue/face', 'ತುಟಿ/ನಾಲಿಗೆ/ಮುಖದ ಮರಗಟ್ಟುವಿಕೆ');
   }
-  if (symptoms.neckSwelling) {
+  if (answers?.neck === 'yes' || (answers?.neck === undefined && symptoms.neckSwelling)) {
     add(25, 'Neck swelling or lump', 'ಕತ್ತಿನ ಊತ ಅಥವಾ ಗಡ್ಡೆ');
+  }
+  if (answers?.throat === 'yes') {
+    add(15, 'Persistent hoarseness, sore throat, or throat discomfort', 'Persistent hoarseness, sore throat, or throat discomfort');
+  }
+  if (answers?.earache === 'yes') {
+    add(10, 'Persistent one-sided earache without an obvious cause', 'Persistent one-sided earache without an obvious cause');
   }
 
   // === ORAL FINDINGS ===
