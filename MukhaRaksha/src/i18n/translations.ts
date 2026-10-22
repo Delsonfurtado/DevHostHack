@@ -205,8 +205,8 @@ const translations = {
     selectSite: 'Select Site',
 
     // Child Care
-    childCareTitle: 'Little Smiles',
-    childCareSubtitle: 'Oral health guidance for children 0–12 years',
+    childCareTitle: 'Gram Sethu',
+    childCareSubtitle: 'Child & Nutrition Care Questionnaire',
     childName: 'Child\'s Name',
     caregiverName: 'Caregiver\'s Name',
     ageMonths: 'Age in months',
@@ -547,8 +547,8 @@ const translations = {
     selectSite: 'ಸ್ಥಳ ಆಯ್ಕೆ ಮಾಡಿ',
 
     // Child Care
-    childCareTitle: 'ಪುಟ್ಟ ನಗು',
-    childCareSubtitle: '0–12 ವರ್ಷದ ಮಕ್ಕಳ ಬಾಯಿ ಆರೋಗ್ಯ ಮಾರ್ಗದರ್ಶನ',
+    childCareTitle: 'ಗ್ರಾಮ ಸೇತು',
+    childCareSubtitle: 'ಮಕ್ಕಳ ಮತ್ತು ಪೌಷ್ಟಿಕ ಆರೈಕೆ ಪ್ರಶ್ನಾವಳಿ',
     childName: 'ಮಗುವಿನ ಹೆಸರು',
     caregiverName: 'ಪಾಲಕರ ಹೆಸರು',
     ageMonths: 'ವಯಸ್ಸು ತಿಂಗಳಲ್ಲಿ',

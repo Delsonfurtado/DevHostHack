@@ -6,14 +6,12 @@ import {
   XCircle,
   Calendar,
   AlertTriangle,
-  Heart,
-  Save,
   RotateCcw,
   Smile,
   Info,
 } from 'lucide-react';
 import Layout from '../components/Layout';
-import { Card, Checkbox, ReadAloudBtn, showToast } from '../components/ui';
+import { Card, ReadAloudBtn, showToast } from '../components/ui';
 import { useApp } from '../context/AppContext';
 import { db } from '../db/database';
 import type { ChildScreening } from '../types/models';
@@ -201,22 +199,26 @@ export default function ChildCare() {
   const [formData, setFormData] = useState({
     childName: '',
     caregiverName: '',
-    ageInputType: 'months' as 'months' | 'years',
-    ageVal: 18,
-    sugarIntake: 'moderate' as 'low' | 'moderate' | 'high',
-    brushingHabits: 'once' as 'none' | 'once' | 'twice' | 'more',
-    bottleAtNight: false,
-    thumbSucking: false,
-    mouthSores: false,
-    whitePatches: false,
-    teethingIssues: false,
-    tobaccoExposure: false,
-    notes: '',
+    ageBand: '' as '' | '0-5' | '6-8' | '9-11' | '12-23' | '2-5-years',
+    dietType: '' as '' | 'vegetarian' | 'vegetarian-eggs' | 'mixed',
+    breastfeedingStatus: '' as '' | 'yes' | 'no' | 'not_applicable_unsure',
+    complementaryMeals: '' as '' | 'none' | '1-2' | '3' | '3-and-snacks' | 'not_applicable_unsure',
+    foodVariety: '' as '' | 'usually' | 'sometimes' | 'rarely',
+    proteinFoods: '' as '' | 'daily_regularly' | 'sometimes' | 'rarely_never',
+    fruitVegetableFrequency: '' as '' | 'daily' | 'sometimes' | 'rarely',
+    honeyAwareness: '' as '' | 'yes' | 'no' | 'not_sure',
+    chokingFoodPreparation: '' as '' | 'age_safe' | 'sometimes_unsafe' | 'needs_guidance',
+    usualDrinks: '' as '' | 'milk_water' | 'sugary_drinks' | 'other_unsure',
+    foodAllergies: '' as '' | 'no_known' | 'yes' | 'unsure',
+    appetite: '' as '' | 'no_refusal' | 'sometimes' | 'frequently',
+    growthConcern: '' as '' | 'no' | 'yes' | 'not_sure',
+    foodGuidanceLanguage: 'en' as 'en' | 'kn' | 'hi',
   });
 
-  // Calculate age band
-  const totalMonths = formData.ageInputType === 'years' ? formData.ageVal * 12 : formData.ageVal;
-
+  const ageBandMonths: Record<Exclude<typeof formData.ageBand, ''>, number> = {
+    '0-5': 3, '6-8': 7, '9-11': 10, '12-23': 18, '2-5-years': 42,
+  };
+  const totalMonths = formData.ageBand ? ageBandMonths[formData.ageBand] : 0;
   const getAgeKey = (m: number): string => {
     if (m < 6) return '0-6';
     if (m < 12) return '6-12';
@@ -226,35 +228,84 @@ export default function ChildCare() {
   };
 
   const currentGuidance = AGE_GUIDANCE[getAgeKey(totalMonths)] || AGE_GUIDANCE['12-24'];
+  const hindiGuidance: Record<string, { give: string[]; avoid: string[]; dentist: string[] }> = {
+    '0-6': { give: ['पहले 6 महीने केवल माँ का दूध दें।', 'खिलाने के बाद मसूड़ों को साफ, नम मुलायम कपड़े से धीरे साफ करें।'], avoid: ['12 महीने से कम उम्र में शहद बिल्कुल न दें।', 'बोतल मुँह में रखकर बच्चे को न सुलाएँ।'], dentist: ['गालों में ऐसी सफेद परत दिखे जो पोंछने से न हटे।', 'बच्चे को दूध पीने में परेशानी हो।'] },
+    '6-12': { give: ['6 महीने के बाद नरम, गाढ़े घर के बने पूरक आहार शुरू करें।', 'पूरक भोजन के साथ स्तनपान जारी रखें।'], avoid: ['12 महीने से पहले शहद न दें; अतिरिक्त नमक और चीनी से बचें।', 'साबुत मेवे, अंगूर या कठोर गोल टुकड़े न दें।'], dentist: ['पहला दाँत निकलने पर या एक वर्ष की उम्र तक दंत-जाँच कराएँ।', 'तेज बुखार या मसूड़ों से खून हो तो चिकित्सक से संपर्क करें।'] },
+    '12-24': { give: ['दाल, अंडे, सब्ज़ियों और फल सहित विविध पारिवारिक भोजन दें।', 'दिन में दो बार फ्लोराइड टूथपेस्ट की थोड़ी मात्रा से दाँत साफ करें।'], avoid: ['चिपचिपी मिठाइयाँ और मीठे पेय सीमित करें।', 'बच्चे के पास तंबाकू का धुआँ या सुपारी का सेवन न करें।'], dentist: ['दाँतों पर सफेद/भूरे धब्बे या दर्द दिखे तो जाँच कराएँ।', 'बाल-दंत चिकित्सक से सलाह लें।'] },
+    '24-60': { give: ['विविध घर का भोजन, दालें, अंडे और मौसमी फल-सब्ज़ियाँ दें।', 'बड़ों की निगरानी में दिन में दो बार दाँत साफ कराएँ।'], avoid: ['बार-बार चॉकलेट, टॉफी और मीठे पेय देने से बचें।', 'घर में बच्चे के पास पान, गुटखा या तंबाकू का उपयोग न करें।'], dentist: ['दाँत में कीड़ा, दर्द या दाँतों के बीच खाना फँसने पर जाँच कराएँ।', 'नियमित दंत-जाँच कराएँ।'] },
+    '60-144': { give: ['पौष्टिक विविध भोजन और फल-सब्ज़ियाँ दें।', 'सुबह और रात दो मिनट तक दाँत साफ करने में मदद करें।'], avoid: ['तंबाकू, गुटखा, सुपारी और सिगरेट से दूर रखें।', 'मीठे पेय और अधिक चीनी वाले नाश्ते सीमित करें।'], dentist: ['टेढ़े दाँत, मसूड़ों से खून या लगातार मुँह के छाले हों।', 'दाँतों की नियमित जाँच कराएँ।'] },
+  };
+  const ageKey = getAgeKey(totalMonths);
+  const foodGuidance = formData.foodGuidanceLanguage === 'hi'
+    ? (hindiGuidance[ageKey] || hindiGuidance['12-24'])
+    : formData.foodGuidanceLanguage === 'kn'
+      ? { give: currentGuidance.giveKn, avoid: currentGuidance.avoidKn, dentist: currentGuidance.dentistKn }
+      : { give: currentGuidance.giveEn, avoid: currentGuidance.avoidEn, dentist: currentGuidance.dentistEn };
+  const guidanceLabels = formData.foodGuidanceLanguage === 'hi'
+    ? { give: 'अनुशंसित भोजन और अभ्यास', avoid: 'किन चीज़ों से बचें', dentist: 'चिकित्सक से कब मिलें' }
+    : formData.foodGuidanceLanguage === 'kn'
+      ? { give: 'ಶಿಫಾರಸು ಮಾಡಿದ ಆಹಾರ ಮತ್ತು ಅಭ್ಯಾಸಗಳು', avoid: 'ತಪ್ಪಿಸಬೇಕಾದ ಆಹಾರ ಮತ್ತು ಅಭ್ಯಾಸಗಳು', dentist: 'ವೈದ್ಯರನ್ನು ಯಾವಾಗ ಸಂಪರ್ಕಿಸಬೇಕು' }
+      : { give: 'Recommended Foods & Practices', avoid: 'Items & Habits to Avoid', dentist: 'When to Seek Dental Care' };
+  const ageBandTitle = formData.foodGuidanceLanguage === 'hi'
+    ? ({ '0-6': '0–5 महीने', '6-12': '6–11 महीने', '12-24': '12–23 महीने', '24-60': '2–5 वर्ष', '60-144': '6–12 वर्ष' }[ageKey])
+    : formData.foodGuidanceLanguage === 'kn' ? currentGuidance.bandKn : currentGuidance.band;
+  const nutritionTips: string[] = [];
+  const addNutritionTip = (en: string, kn: string, hi: string) => {
+    nutritionTips.push(formData.foodGuidanceLanguage === 'hi' ? hi : formData.foodGuidanceLanguage === 'kn' ? kn : en);
+  };
+  if (formData.foodVariety === 'rarely') addNutritionTip('Offer a variety of safe, age-appropriate foods over time.', 'ವಯಸ್ಸಿಗೆ ತಕ್ಕ ಸುರಕ್ಷಿತ ವಿವಿಧ ಆಹಾರಗಳನ್ನು ಕ್ರಮೇಣ ನೀಡಿ.', 'समय के साथ उम्र के अनुसार सुरक्षित और विविध भोजन दें।');
+  if (formData.proteinFoods === 'rarely_never') addNutritionTip('Offer suitable protein foods such as dal, beans, eggs, fish or meat.', 'ದಾಲ್, ಬೀನ್ಸ್, ಮೊಟ್ಟೆ, ಮೀನು ಅಥವಾ ಮಾಂಸದಂತಹ ಸೂಕ್ತ ಪ್ರೋಟೀನ್ ಆಹಾರ ನೀಡಿ.', 'दाल, बीन्स, अंडे, मछली या मांस जैसे उपयुक्त प्रोटीन वाले भोजन दें।');
+  if (formData.fruitVegetableFrequency === 'rarely') addNutritionTip('Offer vegetables and fruits daily in safe, age-appropriate forms.', 'ತರಕಾರಿಗಳು ಮತ್ತು ಹಣ್ಣುಗಳನ್ನು ಪ್ರತಿದಿನ ಸುರಕ್ಷಿತವಾಗಿ, ವಯಸ್ಸಿಗೆ ತಕ್ಕ ರೂಪದಲ್ಲಿ ನೀಡಿ.', 'सब्ज़ियाँ और फल रोज़ाना सुरक्षित, उम्र के अनुसार रूप में दें।');
+  if (formData.complementaryMeals === 'none' && totalMonths >= 6) addNutritionTip('Discuss an age-appropriate complementary feeding routine with a health worker.', 'ವಯಸ್ಸಿಗೆ ತಕ್ಕ ಪೂರಕ ಆಹಾರ ಕ್ರಮದ ಬಗ್ಗೆ ಆರೋಗ್ಯ ಕಾರ್ಯಕರ್ತರೊಂದಿಗೆ ಚರ್ಚಿಸಿ.', 'उम्र के अनुसार पूरक आहार की दिनचर्या पर स्वास्थ्य कार्यकर्ता से बात करें।');
+  if (['0-5', '6-8', '9-11'].includes(formData.ageBand) && formData.honeyAwareness !== 'yes') addNutritionTip('Do not give honey to a child under 12 months.', '12 ತಿಂಗಳಿಗಿಂತ ಕಡಿಮೆ ವಯಸ್ಸಿನ ಮಗುವಿಗೆ ಜೇನುತುಪ್ಪ ನೀಡಬೇಡಿ.', '12 महीने से कम उम्र के बच्चे को शहद न दें।');
+  if (formData.chokingFoodPreparation !== 'age_safe') addNutritionTip('Prepare foods to reduce choking risk; avoid whole or hard pieces and ask a health worker for age-specific guidance.', 'ಉಸಿರುಗಟ್ಟುವ ಅಪಾಯ ಕಡಿಮೆ ಮಾಡಲು ಆಹಾರವನ್ನು ತಯಾರಿಸಿ; ದೊಡ್ಡ ಅಥವಾ ಗಟ್ಟಿಯಾದ ತುಂಡುಗಳನ್ನು ತಪ್ಪಿಸಿ ಮತ್ತು ಆರೋಗ್ಯ ಕಾರ್ಯಕರ್ತರ ಸಲಹೆ ಪಡೆಯಿರಿ.', 'दम घुटने का जोखिम घटाने के लिए भोजन तैयार करें; साबुत या कठोर टुकड़ों से बचें और उम्र के अनुसार सलाह लें।');
+  if (formData.usualDrinks === 'sugary_drinks') addNutritionTip('Offer water and age-appropriate milk; limit sugary drinks and packaged juice.', 'ನೀರು ಮತ್ತು ವಯಸ್ಸಿಗೆ ತಕ್ಕ ಹಾಲು ನೀಡಿ; ಸಿಹಿ ಪಾನೀಯ ಮತ್ತು ಪ್ಯಾಕ್ ಮಾಡಿದ ಜ್ಯೂಸ್ ಮಿತಿಗೊಳಿಸಿ.', 'पानी और उम्र के अनुसार दूध दें; मीठे पेय और पैकेट जूस सीमित रखें।');
+  if (formData.foodAllergies === 'yes' || formData.foodAllergies === 'unsure') addNutritionTip('Discuss suspected food allergies with a qualified health professional before changing the child’s diet.', 'ಆಹಾರ ಅಲರ್ಜಿ ಶಂಕೆಯಿದ್ದರೆ ಆಹಾರಕ್ರಮ ಬದಲಿಸುವ ಮೊದಲು ಅರ್ಹ ಆರೋಗ್ಯ ವೃತ್ತಿಪರರೊಂದಿಗೆ ಚರ್ಚಿಸಿ.', 'खाद्य एलर्जी का संदेह हो तो आहार बदलने से पहले स्वास्थ्य विशेषज्ञ से बात करें।');
+  if (formData.appetite === 'frequently' || formData.growthConcern === 'yes' || formData.growthConcern === 'not_sure') addNutritionTip('Discuss appetite or growth concerns with a health worker or paediatrician.', 'ಹಸಿವು ಅಥವಾ ಬೆಳವಣಿಗೆಯ ಚಿಂತೆಯನ್ನು ಆರೋಗ್ಯ ಕಾರ್ಯಕರ್ತರು ಅಥವಾ ಮಕ್ಕಳ ವೈದ್ಯರೊಂದಿಗೆ ಚರ್ಚಿಸಿ.', 'भूख या वृद्धि की चिंता पर स्वास्थ्य कार्यकर्ता या बाल-चिकित्सक से बात करें।');
+  const ageBandLabel: Record<Exclude<typeof formData.ageBand, ''>, string> = {
+    '0-5': '0–5 months', '6-8': '6–8 months', '9-11': '9–11 months', '12-23': '12–23 months', '2-5-years': '2–5 years',
+  };
+  const selectQuestion = <K extends keyof typeof formData,>(key: K, label: string, options: { value: (typeof formData)[K]; label: string }[]) => (
+    <div><label htmlFor={String(key)} className="block text-sm font-semibold text-gray-800 dark:text-gray-100 mb-1">{label}</label>
+      <select id={String(key)} className="input-field" value={String(formData[key])} onChange={(event) => setFormData((current) => ({ ...current, [key]: event.target.value as (typeof formData)[K] }))} required>
+        <option value="">Select an answer</option>{options.map((option) => <option key={String(option.value)} value={String(option.value)}>{option.label}</option>)}
+      </select>
+    </div>
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.childName.trim() || !formData.caregiverName.trim()) {
-      showToast(lang === 'kn' ? 'ದಯವಿಟ್ಟು ಮಗುವಿನ ಮತ್ತು ಪಾಲಕರ ಹೆಸರು ನಮೂದಿಸಿ' : 'Please enter child and caregiver name', 'error');
+    if (!formData.ageBand) {
+      showToast('Please select the child age group.', 'error');
       return;
     }
 
     try {
       const newRec: ChildScreening = {
         id: 'child_' + Date.now(),
-        childName: formData.childName.trim(),
-        caregiverName: formData.caregiverName.trim(),
+        childName: formData.childName.trim() || 'Child',
+        caregiverName: formData.caregiverName.trim() || 'Caregiver',
         ageMonths: totalMonths,
-        bottleAtNight: formData.bottleAtNight,
-        sugarIntake: formData.sugarIntake,
-        brushingHabits: formData.brushingHabits,
-        thumbSuckingOrPacifier: formData.thumbSucking,
-        mouthSores: formData.mouthSores,
-        whitePatches: formData.whitePatches,
-        teethingIssues: formData.teethingIssues,
-        tobaccoExposureAtHome: formData.tobaccoExposure,
-        notes: formData.notes.trim() || undefined,
+        ageBand: formData.ageBand,
+        dietType: formData.dietType || undefined,
+        breastfeedingStatus: formData.breastfeedingStatus || undefined,
+        complementaryMeals: formData.complementaryMeals || undefined,
+        foodVariety: formData.foodVariety || undefined,
+        proteinFoods: formData.proteinFoods || undefined,
+        fruitVegetableFrequency: formData.fruitVegetableFrequency || undefined,
+        honeyAwareness: formData.honeyAwareness || undefined,
+        chokingFoodPreparation: formData.chokingFoodPreparation || undefined,
+        usualDrinks: formData.usualDrinks || undefined,
+        foodAllergies: formData.foodAllergies || undefined,
+        appetite: formData.appetite || undefined,
+        growthConcern: formData.growthConcern || undefined,
+        foodGuidanceLanguage: formData.foodGuidanceLanguage,
         createdAt: new Date(),
       };
 
       await db.childScreenings.add(newRec);
       setSubmitted(true);
-      showToast(lang === 'kn' ? 'ಮಕ್ಕಳ ತಪಾಸಣೆ ಮಾರ್ಗದರ್ಶನ ಸಿದ್ಧವಾಗಿದೆ!' : 'Child oral guidance generated and saved!', 'success');
+      showToast('Gram Sethu child nutrition guidance saved.', 'success');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
       console.error(err);
@@ -273,7 +324,7 @@ export default function ChildCare() {
             </div>
             <div>
               <h2 className="text-base font-bold text-gray-900 dark:text-white">
-                {t('childCareTitle')} / ಪುಟ್ಟ ನಗು
+                {t('childCareTitle')}
               </h2>
               <p className="text-xs text-gray-500">{t('childCareSubtitle')}</p>
             </div>
@@ -281,8 +332,8 @@ export default function ChildCare() {
           <ReadAloudBtn
             text={
               lang === 'kn'
-                ? 'ಪುಟ್ಟ ನಗು - ೦ ರಿಂದ ೧೨ ವರ್ಷದ ಮಕ್ಕಳ ಬಾಯಿ ಆರೋಗ್ಯ ಮತ್ತು ಪೋಷಣೆಯ ಮಾರ್ಗದರ್ಶನ.'
-                : 'Little Smiles oral health and nutrition guidance for children zero to 12 years.'
+                ? 'ಗ್ರಾಮ ಸೇತು - ಮಕ್ಕಳ ಮತ್ತು ಪೌಷ್ಟಿಕ ಆರೈಕೆ ಪ್ರಶ್ನಾವಳಿ.'
+                : 'Gram Sethu - Child & Nutrition Care Questionnaire.'
             }
           />
         </div>
@@ -290,122 +341,37 @@ export default function ChildCare() {
         {!submitted ? (
           /* QUESTIONNAIRE FORM */
           <form onSubmit={handleSubmit} className="space-y-4">
-            <Card className="space-y-3">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-pink-700 dark:text-pink-300">
-                {lang === 'kn' ? 'ಮಗು ಮತ್ತು ಪಾಲಕರ ವಿವರ' : 'Child & Caregiver Details'}
-              </h3>
-
-              <div>
-                <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">
-                  {t('childName')} *
-                </label>
-                <input
-                  type="text"
-                  value={formData.childName}
-                  onChange={(e) => setFormData({ ...formData, childName: e.target.value })}
-                  placeholder="e.g. Aarav / Ananya"
-                  className="input-field"
-                  required
-                />
+            <Card className="space-y-4">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-pink-700 dark:text-pink-300">Section 1: Child's information</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div><label className="block text-sm font-semibold mb-1">Child's name (optional)</label><input className="input-field" value={formData.childName} onChange={(event) => setFormData({ ...formData, childName: event.target.value })} /></div>
+                <div><label className="block text-sm font-semibold mb-1">Caregiver's name (optional)</label><input className="input-field" value={formData.caregiverName} onChange={(event) => setFormData({ ...formData, caregiverName: event.target.value })} /></div>
               </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">
-                  {t('caregiverName')} *
-                </label>
-                <input
-                  type="text"
-                  value={formData.caregiverName}
-                  onChange={(e) => setFormData({ ...formData, caregiverName: e.target.value })}
-                  placeholder="e.g. Meenakshi (Mother)"
-                  className="input-field"
-                  required
-                />
-              </div>
-
-              {/* Age Selection */}
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
-                    {formData.ageInputType === 'months' ? t('ageMonths') : t('ageYears')} *
-                  </label>
-                  <div className="flex rounded-lg bg-gray-100 dark:bg-gray-700 p-0.5 text-[11px]">
-                    <button
-                      type="button"
-                      onClick={() => setFormData({ ...formData, ageInputType: 'months', ageVal: 12 })}
-                      className={`px-2 py-0.5 rounded ${formData.ageInputType === 'months' ? 'bg-white dark:bg-gray-600 font-bold shadow-xs' : 'text-gray-500'}`}
-                    >
-                      {lang === 'kn' ? 'ತಿಂಗಳು (0-59)' : 'Months'}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setFormData({ ...formData, ageInputType: 'years', ageVal: 6 })}
-                      className={`px-2 py-0.5 rounded ${formData.ageInputType === 'years' ? 'bg-white dark:bg-gray-600 font-bold shadow-xs' : 'text-gray-500'}`}
-                    >
-                      {lang === 'kn' ? 'ವರ್ಷ (5-12)' : 'Years'}
-                    </button>
-                  </div>
-                </div>
-
-                <input
-                  type="number"
-                  value={formData.ageVal}
-                  onChange={(e) => setFormData({ ...formData, ageVal: parseInt(e.target.value) || 0 })}
-                  className="input-field"
-                  min={formData.ageInputType === 'months' ? 0 : 5}
-                  max={formData.ageInputType === 'months' ? 59 : 12}
-                />
-              </div>
+              {selectQuestion('ageBand', "1. Child's age", [{ value: '0-5', label: '0–5 months' }, { value: '6-8', label: '6–8 months' }, { value: '9-11', label: '9–11 months' }, { value: '12-23', label: '12–23 months' }, { value: '2-5-years', label: '2–5 years' }])}
+              {selectQuestion('dietType', '2. What type of diet does the child follow?', [{ value: 'vegetarian', label: 'Vegetarian' }, { value: 'vegetarian-eggs', label: 'Vegetarian with eggs' }, { value: 'mixed', label: 'Mixed diet (meat or fish included)' }])}
+              {selectQuestion('breastfeedingStatus', '3. Is the child currently breastfed?', [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }, { value: 'not_applicable_unsure', label: 'Not applicable / unsure' }])}
             </Card>
-
-            {/* Habits & Observations */}
-            <Card className="space-y-3">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-pink-700 dark:text-pink-300">
-                {lang === 'kn' ? 'ದೈನಂದಿನ ಆಹಾರ ಮತ್ತು ಬಾಯಿ ಅಭ್ಯಾಸಗಳು' : 'Feeding & Dental Habits'}
-              </h3>
-
-              <Checkbox
-                checked={formData.bottleAtNight}
-                onChange={(v) => setFormData({ ...formData, bottleAtNight: v })}
-                label={lang === 'kn' ? 'ರಾತ್ರಿ ಮಲಗುವಾಗ ಬಾಟಲ್ ಹಾಲು ಕುಡಿಯುವುದು' : 'Takes a feeding bottle to bed at night'}
-              />
-              <Checkbox
-                checked={formData.thumbSucking}
-                onChange={(v) => setFormData({ ...formData, thumbSucking: v })}
-                label={lang === 'kn' ? 'ಬೆರಳು ಚೀಪುವ ಅಥವಾ ರಬ್ಬರ್ ನಿಪ್ಪಲ್ ಅಭ್ಯಾಸ' : 'Thumb-sucking or regular pacifier habit'}
-              />
-              <Checkbox
-                checked={formData.tobaccoExposure}
-                onChange={(v) => setFormData({ ...formData, tobaccoExposure: v })}
-                label={lang === 'kn' ? 'ಮನೆಯಲ್ಲಿ ಮಗುವಿನ ಮುಂದೆ ತಂಬಾಕು/ಅಡಿಕೆ ಬಳಕೆ ಇದೆ' : 'Child is exposed to tobacco smoke or areca nut chewing at home'}
-              />
-
-              <div className="pt-2 border-t border-gray-100 dark:border-gray-700 space-y-2">
-                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 block">
-                  {lang === 'kn' ? 'ಲಕ್ಷಣಗಳ ಗಮನಿಸುವಿಕೆ' : 'Reported Symptoms'}
-                </span>
-                <Checkbox
-                  checked={formData.mouthSores}
-                  onChange={(v) => setFormData({ ...formData, mouthSores: v })}
-                  label={lang === 'kn' ? 'ಬಾಯಿಯಲ್ಲಿ ಹುಣ್ಣು ಅಥವಾ ನೋವು ಇದೆ' : 'Child has mouth sores, ulcers, or pain'}
-                />
-                <Checkbox
-                  checked={formData.whitePatches}
-                  onChange={(v) => setFormData({ ...formData, whitePatches: v })}
-                  label={lang === 'kn' ? 'ಬಾಯಿಯಲ್ಲಿ ಬಿಳಿ ಚುಕ್ಕೆಗಳು / ಕೆನೆ ಇದೆ' : 'White patches or curd-like coating in mouth'}
-                />
-                <Checkbox
-                  checked={formData.teethingIssues}
-                  onChange={(v) => setFormData({ ...formData, teethingIssues: v })}
-                  label={lang === 'kn' ? 'ಹಲ್ಲು ಮೂಡುವಾಗ ಊತ ಅಥವಾ ಕಿರಿಕಿರಿ ಇದೆ' : 'Severe teething irritability or swollen gums'}
-                />
-              </div>
+            <Card className="space-y-4">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-pink-700 dark:text-pink-300">Section 2: Daily food habits</h3>
+              {selectQuestion('complementaryMeals', '4. How many complementary meals does the child eat daily? (For children 6 months or older)', [{ value: 'none', label: 'None' }, { value: '1-2', label: '1–2 meals' }, { value: '3', label: '3 meals' }, { value: '3-and-snacks', label: '3 meals and snacks' }, { value: 'not_applicable_unsure', label: 'Not applicable / unsure' }])}
+              {selectQuestion('foodVariety', '5. Does the child eat a variety of age-appropriate foods?', [{ value: 'usually', label: 'Usually' }, { value: 'sometimes', label: 'Sometimes' }, { value: 'rarely', label: 'Rarely' }])}
+              {selectQuestion('proteinFoods', '6. Does the child eat protein-rich foods such as dal, beans, eggs, fish or meat, as appropriate?', [{ value: 'daily_regularly', label: 'Daily or regularly' }, { value: 'sometimes', label: 'Sometimes' }, { value: 'rarely_never', label: 'Rarely or never' }])}
+              {selectQuestion('fruitVegetableFrequency', '7. Does the child eat vegetables and fruits?', [{ value: 'daily', label: 'Daily' }, { value: 'sometimes', label: 'Sometimes' }, { value: 'rarely', label: 'Rarely' }])}
             </Card>
-
-            <button type="submit" className="btn-primary w-full py-3 text-sm shadow-md flex items-center justify-center gap-2">
-              <Sparkles size={16} />
-              {lang === 'kn' ? 'ಮಾರ್ಗದರ್ಶನ ಪಡೆಯಿರಿ' : 'View Age-Banded Guidance'}
-            </button>
+            <Card className="space-y-4">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-pink-700 dark:text-pink-300">Section 3: Food safety awareness</h3>
+              {selectQuestion('honeyAwareness', '8. Does the caregiver know that honey must not be given to babies under 12 months?', [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }, { value: 'not_sure', label: 'Not sure' }])}
+              {selectQuestion('chokingFoodPreparation', '9. How are foods that may cause choking prepared for the child?', [{ value: 'age_safe', label: "Prepared safely for the child's age" }, { value: 'sometimes_unsafe', label: 'Sometimes given whole or in hard pieces' }, { value: 'needs_guidance', label: 'Caregiver needs guidance' }])}
+              {selectQuestion('usualDrinks', '10. What does the child usually drink?', [{ value: 'milk_water', label: 'Breast milk or age-appropriate milk and water' }, { value: 'sugary_drinks', label: 'Sugary drinks or packaged juice frequently' }, { value: 'other_unsure', label: 'Other / unsure' }])}
+            </Card>
+            <Card className="space-y-4">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-pink-700 dark:text-pink-300">Section 4: Health and nutrition concerns</h3>
+              {selectQuestion('foodAllergies', '11. Does the child have any known or suspected food allergies?', [{ value: 'no_known', label: 'No known allergies' }, { value: 'yes', label: 'Yes' }, { value: 'unsure', label: 'Unsure' }])}
+              {selectQuestion('appetite', '12. Does the child frequently refuse food or have a poor appetite?', [{ value: 'no_refusal', label: 'No' }, { value: 'sometimes', label: 'Sometimes' }, { value: 'frequently', label: 'Frequently' }])}
+              {selectQuestion('growthConcern', "13. Has a health worker raised concerns about the child's weight or growth?", [{ value: 'no', label: 'No' }, { value: 'yes', label: 'Yes' }, { value: 'not_sure', label: 'Not sure' }])}
+            </Card>
+            <Card>{selectQuestion('foodGuidanceLanguage', 'Preferred language for the food guidance', [{ value: 'en', label: 'English' }, { value: 'kn', label: 'Kannada' }, { value: 'hi', label: 'Hindi' }])}</Card>
+            <button type="submit" className="btn-primary w-full py-3 text-sm shadow-md flex items-center justify-center gap-2"><Sparkles size={16} />Generate Gram Sethu Guidance</button>
           </form>
         ) : (
           /* GUIDANCE VIEW */
@@ -414,25 +380,38 @@ export default function ChildCare() {
             <div className="p-4 rounded-2xl bg-gradient-to-r from-pink-500 to-rose-600 text-white shadow-sm flex items-center justify-between">
               <div>
                 <span className="text-xs font-semibold uppercase tracking-wider text-pink-100 block">
-                  {formData.childName} ({totalMonths} {lang === 'kn' ? 'ತಿಂಗಳು' : 'months'})
+                  {formData.childName.trim() || 'Child'} ({formData.ageBand ? ageBandLabel[formData.ageBand] : ''})
                 </span>
                 <h3 className="text-base font-bold">
-                  {lang === 'kn' ? currentGuidance.bandKn : currentGuidance.band}
+                  {ageBandTitle}
                 </h3>
               </div>
               <Smile size={32} className="text-pink-100" />
             </div>
 
-            {/* Red Flag Warning if sores / white patches checked */}
-            {(formData.mouthSores || formData.whitePatches) && (
+            {nutritionTips.length > 0 && (
+              <Card className="space-y-2 border-l-4 border-l-amber-500">
+                <h3 className="text-sm font-bold text-gray-900 dark:text-white">
+                  {formData.foodGuidanceLanguage === 'hi' ? 'आपके जवाबों के अनुसार सुझाव' : formData.foodGuidanceLanguage === 'kn' ? 'ನಿಮ್ಮ ಉತ್ತರಗಳ ಆಧಾರದ ಸಲಹೆಗಳು' : 'Tips based on your answers'}
+                </h3>
+                <ul className="space-y-1.5 text-xs text-gray-700 dark:text-gray-200">
+                  {nutritionTips.map((tip) => <li key={tip} className="flex gap-2"><span className="text-amber-600">•</span><span>{tip}</span></li>)}
+                </ul>
+              </Card>
+            )}
+
+            {/* Encourage follow-up for reported health concerns */}
+            {(formData.foodAllergies === 'yes' || formData.appetite === 'frequently' || formData.growthConcern === 'yes') && (
               <div className="p-3.5 rounded-xl bg-red-100 dark:bg-red-950/40 border border-red-300 dark:border-red-800 flex items-start gap-2.5 text-xs text-red-800 dark:text-red-200">
                 <AlertTriangle size={18} className="shrink-0 text-red-600" />
                 <div>
                   <span className="font-bold block">{t('redFlag')}</span>
                   <span>
-                    {lang === 'kn'
-                      ? 'ಮಗುವಿನಲ್ಲಿ ವಾಸಿಯಾಗದ ಹುಣ್ಣು ಅಥವಾ ಬಿಳಿ ಚುಕ್ಕೆಗಳು ಕಂಡುಬಂದಲ್ಲಿ ವಿಳಂಬ ಮಾಡದೆ ದಂತ ವೈದ್ಯರನ್ನು ಅಥವಾ ಮಕ್ಕಳ ವೈದ್ಯರನ್ನು ಭೇಟಿ ಮಾಡಿ.'
-                      : 'Persistent oral lesions, white coating, or bleeding gums in young children require clinical evaluation.'}
+                    {formData.foodGuidanceLanguage === 'hi'
+                      ? 'एलर्जी, भूख या वृद्धि को लेकर चिंता हो तो बच्चे के स्वास्थ्य कार्यकर्ता या बाल-चिकित्सक से सलाह लें।'
+                      : formData.foodGuidanceLanguage === 'kn'
+                        ? 'ಆಹಾರ ಅಲರ್ಜಿ, ಹಸಿವು ಅಥವಾ ಬೆಳವಣಿಗೆಯ ಬಗ್ಗೆ ಚಿಂತೆ ಇದ್ದರೆ ಆರೋಗ್ಯ ಕಾರ್ಯಕರ್ತರು ಅಥವಾ ಮಕ್ಕಳ ವೈದ್ಯರನ್ನು ಸಂಪರ್ಕಿಸಿ.'
+                        : 'If there are concerns about allergies, appetite or growth, discuss them with a health worker or paediatrician.'}
                   </span>
                 </div>
               </div>
@@ -443,11 +422,11 @@ export default function ChildCare() {
               <div className="flex items-center gap-2">
                 <CheckCircle2 size={18} className="text-green-600" />
                 <h3 className="text-sm font-bold text-gray-900 dark:text-white">
-                  {t('whatToGive')} ({lang === 'kn' ? 'ಏನು ಕೊಡಬೇಕು' : 'Recommended Foods & Practices'})
+                  {guidanceLabels.give}
                 </h3>
               </div>
               <ul className="space-y-1.5 text-xs text-gray-700 dark:text-gray-200">
-                {(lang === 'kn' ? currentGuidance.giveKn : currentGuidance.giveEn).map((item, i) => (
+                {foodGuidance.give.map((item, i) => (
                   <li key={i} className="flex items-start gap-2">
                     <span className="text-green-600 font-bold">✓</span>
                     <span>{item}</span>
@@ -461,11 +440,11 @@ export default function ChildCare() {
               <div className="flex items-center gap-2">
                 <XCircle size={18} className="text-red-500" />
                 <h3 className="text-sm font-bold text-gray-900 dark:text-white">
-                  {t('whatToAvoid')} ({lang === 'kn' ? 'ಏನು ತಪ್ಪಿಸಬೇಕು' : 'Items & Habits to Strictly Avoid'})
+                  {guidanceLabels.avoid}
                 </h3>
               </div>
               <ul className="space-y-1.5 text-xs text-gray-700 dark:text-gray-200">
-                {(lang === 'kn' ? currentGuidance.avoidKn : currentGuidance.avoidEn).map((item, i) => (
+                {foodGuidance.avoid.map((item, i) => (
                   <li key={i} className="flex items-start gap-2">
                     <span className="text-red-500 font-bold">✗</span>
                     <span>{item}</span>
@@ -479,11 +458,11 @@ export default function ChildCare() {
               <div className="flex items-center gap-2">
                 <Calendar size={18} className="text-teal-600" />
                 <h3 className="text-sm font-bold text-gray-900 dark:text-white">
-                  {t('whenToSeeDentist')} ({lang === 'kn' ? 'ವೈದ್ಯರನ್ನು ಯಾವಾಗ ನೋಡಬೇಕು' : 'Dental Visit Indicators'})
+                  {guidanceLabels.dentist}
                 </h3>
               </div>
               <ul className="space-y-1.5 text-xs text-gray-700 dark:text-gray-200">
-                {(lang === 'kn' ? currentGuidance.dentistKn : currentGuidance.dentistEn).map((item, i) => (
+                {foodGuidance.dentist.map((item, i) => (
                   <li key={i} className="flex items-start gap-2">
                     <span className="text-teal-600 font-bold">ℹ</span>
                     <span>{item}</span>
