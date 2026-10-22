@@ -17,7 +17,35 @@ const translations = {
     learn: 'Learn',
     more: 'More',
 
+    // Splash
+    splash: {
+      tagline: 'Oral Cancer Screening & Awareness for Karnataka',
+      loading: 'Loading MukhaRaksha...',
+      disclaimer: 'This app supports screening and awareness. It does not diagnose cancer. Always consult a doctor or dentist.',
+      version: 'v1.0.0 · Offline Ready PWA',
+    },
+
     // Onboarding
+    onboarding: {
+      slide1: {
+        title: 'Welcome to MukhaRaksha',
+        subtitle: 'Your trusted mobile health companion for early oral cancer detection and awareness in Karnataka.',
+      },
+      slide2: {
+        title: 'Screen & Detect Early',
+        subtitle: 'Equipped with on-device camera quality guard and explainable clinical risk assessment.',
+      },
+      slide3: {
+        title: 'Track Cases & Referrals',
+        subtitle: 'Close the loop on appointments and follow-ups. Ensure no high-risk case is lost.',
+      },
+      skip: 'Skip',
+      next: 'Next',
+      getStarted: 'Get Started',
+      slideIndicator: 'Slide indicator',
+      slideLabel: 'Slide {n}',
+      disclaimer: 'Clinical aid for community health workers. Does not replace professional biopsy or dental diagnosis.',
+    },
     onboardingTitle1: 'Welcome to MukhaRaksha',
     onboardingDesc1: 'Your trusted companion for oral cancer screening and awareness in Karnataka.',
     onboardingTitle2: 'Screen & Detect Early',
@@ -330,7 +358,35 @@ const translations = {
     learn: 'ಕಲಿಯಿರಿ',
     more: 'ಇನ್ನಷ್ಟು',
 
+    // Splash
+    splash: {
+      tagline: 'ಕರ್ನಾಟಕದಲ್ಲಿ ಬಾಯಿ ಕ್ಯಾನ್ಸರ್ ಮುಂಚಿತ ಪತ್ತೆ ಮತ್ತು ಜಾಗೃತಿ',
+      loading: 'ಮುಖರಕ್ಷಾ ಲೋಡ್ ಆಗುತ್ತಿದೆ...',
+      disclaimer: 'ಈ ಅಪ್ಲಿಕೇಶನ್ ತಪಾಸಣೆ ಮತ್ತು ಜಾಗೃತಿಗೆ ಸಹಾಯ ಮಾಡುತ್ತದೆ. ಇದು ಕ್ಯಾನ್ಸರ್ ರೋಗನಿರ್ಣಯ ಮಾಡುವುದಿಲ್ಲ. ಯಾವಾಗಲೂ ವೈದ್ಯರ ಸಲಹೆ ಪಡೆಯಿರಿ.',
+      version: 'ಆವೃತ್ತಿ ೧.೦.೦ · ಆಫ್‌ಲೈನ್ ಸಿದ್ಧ PWA',
+    },
+
     // Onboarding
+    onboarding: {
+      slide1: {
+        title: 'ಮುಖರಕ್ಷಾಗೆ ಸ್ವಾಗತ',
+        subtitle: 'ಕರ್ನಾಟಕದಲ್ಲಿ ಬಾಯಿ ಕ್ಯಾನ್ಸರ್ ತಪಾಸಣೆ ಮತ್ತು ಜಾಗೃತಿಗಾಗಿ ನಿಮ್ಮ ವಿಶ್ವಾಸಾರ್ಹ ಮೊಬೈಲ್ ಸಹಯೋಗಿ.',
+      },
+      slide2: {
+        title: 'ಬೇಗ ಪತ್ತೆ ಮಾಡಿ, ಜೀವ ಉಳಿಸಿ',
+        subtitle: 'ಕ್ಯಾಮರಾ ಗುಣಮಟ್ಟ ಪರಿಶೀಲನೆ ಮತ್ತು ಪಾರದರ್ಶಕ ನಿಯಮ-ಆಧಾರಿತ ಅಪಾಯದ ಮೌಲ್ಯಮಾಪನ.',
+      },
+      slide3: {
+        title: 'ಪ್ರಕರಣಗಳನ್ನು ಟ್ರ್ಯಾಕ್ ಮಾಡಿ',
+        subtitle: 'ತಪಾಸಣೆಯಿಂದ ಆಸ್ಪತ್ರೆ ಭೇಟಿ ಮತ್ತು ಫಾಲೋ-ಅಪ್ ಮುಕ್ತಾಯದವರೆಗೆ ಪೂರ್ಣ ನಿಗಾ ವಹಿಸಿ.',
+      },
+      skip: 'ಬಿಟ್ಟುಬಿಡಿ',
+      next: 'ಮುಂದೆ',
+      getStarted: 'ಪ್ರಾರಂಭಿಸಿ',
+      slideIndicator: 'ಸ್ಲೈಡ್ ಸೂಚಕ',
+      slideLabel: 'ಸ್ಲೈಡ್ {n}',
+      disclaimer: 'ಆಶಾ/ಎಎನ್ಎಂ ಕಾರ್ಯಕರ್ತರಿಗೆ ಜಾಗೃತಿ ಸಾಧನ. ವೈದ್ಯಕೀಯ ರೋಗನಿರ್ಣಯಕ್ಕೆ ಬದಲಿಯಲ್ಲ.',
+    },
     onboardingTitle1: 'ಮುಖರಕ್ಷಾಗೆ ಸ್ವಾಗತ',
     onboardingDesc1: 'ಕರ್ನಾಟಕದಲ್ಲಿ ಬಾಯಿ ಕ್ಯಾನ್ಸರ್ ತಪಾಸಣೆ ಮತ್ತು ಜಾಗೃತಿಗಾಗಿ ನಿಮ್ಮ ವಿಶ್ವಾಸಾರ್ಹ ಸಹಯೋಗಿ.',
     onboardingTitle2: 'ಬೇಗ ಪತ್ತೆ ಮಾಡಿ, ಜೀವ ಉಳಿಸಿ',

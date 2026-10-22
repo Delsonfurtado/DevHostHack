@@ -2,21 +2,26 @@
 
 import React from 'react';
 import { useApp } from '../context/AppContext';
-import { Volume2, VolumeX, AlertCircle, CheckCircle, AlertTriangle, X, ChevronRight } from 'lucide-react';
+import { Volume2, VolumeX, AlertCircle, CheckCircle, AlertTriangle, X, ChevronRight, ShieldAlert } from 'lucide-react';
 
 // ─── Disclaimer Banner ─────────────────────────────────────────────────────────
 export function DisclaimerBanner() {
   const { t, speak, stopSpeaking, isSpeaking } = useApp();
   return (
-    <div className="bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-800 px-4 py-2 flex items-center gap-2">
-      <AlertCircle size={14} className="text-amber-600 dark:text-amber-400 shrink-0" />
-      <p className="text-xs text-amber-700 dark:text-amber-300 flex-1">{t('disclaimer')}</p>
+    <div className="bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-teal-500/10 dark:from-amber-950/40 dark:to-teal-950/30 border-b border-amber-200/80 dark:border-amber-800/60 px-4 py-2 flex items-center justify-between gap-2.5 backdrop-blur-xs">
+      <div className="flex items-center gap-2 flex-1 min-w-0">
+        <ShieldAlert size={15} className="text-amber-600 dark:text-amber-400 shrink-0" />
+        <p className="text-[11px] leading-snug font-medium text-amber-800 dark:text-amber-300 truncate sm:whitespace-normal">
+          {t('disclaimer')}
+        </p>
+      </div>
       <button
         onClick={isSpeaking ? stopSpeaking : () => speak(t('disclaimer'))}
-        className="text-amber-600 dark:text-amber-400 p-1"
+        className="text-amber-700 dark:text-amber-300 hover:text-amber-900 bg-amber-100/70 dark:bg-amber-900/50 p-1.5 rounded-lg shrink-0 transition-colors"
         aria-label={t('readAloud')}
+        title={isSpeaking ? t('stopReading') : t('readAloud')}
       >
-        {isSpeaking ? <VolumeX size={14} /> : <Volume2 size={14} />}
+        {isSpeaking ? <VolumeX size={13} className="text-red-500 animate-pulse" /> : <Volume2 size={13} />}
       </button>
     </div>
   );
@@ -28,11 +33,11 @@ export function ReadAloudBtn({ text, className = '' }: { text: string; className
   return (
     <button
       onClick={isSpeaking ? stopSpeaking : () => speak(text)}
-      className={`flex items-center gap-1 text-sm text-teal-600 dark:text-teal-400 font-medium ${className}`}
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 hover:bg-teal-100 border border-teal-200/60 dark:border-teal-800/60 text-xs font-semibold shadow-2xs transition-all active:scale-95 ${className}`}
       aria-label={isSpeaking ? t('stopReading') : t('readAloud')}
     >
-      {isSpeaking ? <VolumeX size={16} /> : <Volume2 size={16} />}
-      {isSpeaking ? t('stopReading') : t('readAloud')}
+      {isSpeaking ? <VolumeX size={13} className="text-rose-500 animate-pulse" /> : <Volume2 size={13} />}
+      <span>{isSpeaking ? t('stopReading') : t('readAloud')}</span>
     </button>
   );
 }
@@ -40,15 +45,29 @@ export function ReadAloudBtn({ text, className = '' }: { text: string; className
 // ─── Risk Badge ────────────────────────────────────────────────────────────────
 export function RiskBadge({ level }: { level: 'LOW' | 'MODERATE' | 'HIGH' }) {
   const { t } = useApp();
-  const classes = {
-    LOW: 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300',
-    MODERATE: 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
-    HIGH: 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300',
+  const configs = {
+    LOW: {
+      style: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800',
+      dot: 'bg-emerald-500',
+      label: t('low'),
+    },
+    MODERATE: {
+      style: 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200 dark:border-amber-800',
+      dot: 'bg-amber-500',
+      label: t('moderate'),
+    },
+    HIGH: {
+      style: 'bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border-rose-200 dark:border-rose-800 animate-pulse',
+      dot: 'bg-rose-500',
+      label: t('high'),
+    },
   };
-  const labels = { LOW: t('low'), MODERATE: t('moderate'), HIGH: t('high') };
+  const config = configs[level] || configs.LOW;
+
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wide ${classes[level]}`}>
-      {labels[level]}
+    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider border shadow-2xs ${config.style}`}>
+      <span className={`w-1.5 h-1.5 rounded-full ${config.dot}`} />
+      {config.label}
     </span>
   );
 }
@@ -57,17 +76,17 @@ export function RiskBadge({ level }: { level: 'LOW' | 'MODERATE' | 'HIGH' }) {
 export function StageBadge({ stage }: { stage: string }) {
   const { t } = useApp();
   const stageMap: Record<string, string> = {
-    screening_completed: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
-    referral_recommended: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
-    appointment_pending: 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300',
-    appointment_attended: 'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300',
-    follow_up_recorded: 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300',
-    closed: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
-    lost_to_follow_up: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400',
+    screening_completed: 'bg-sky-50 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300 border-sky-200 dark:border-sky-800',
+    referral_recommended: 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200 dark:border-amber-800',
+    appointment_pending: 'bg-orange-50 text-orange-700 dark:bg-orange-950/60 dark:text-orange-300 border-orange-200 dark:border-orange-800',
+    appointment_attended: 'bg-teal-50 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300 border-teal-200 dark:border-teal-800',
+    follow_up_recorded: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800',
+    closed: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800',
+    lost_to_follow_up: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border-slate-200 dark:border-slate-700',
   };
   const label = t(`stages.${stage}`) || stage;
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium ${stageMap[stage] || 'bg-gray-100 text-gray-700'}`}>
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-semibold border ${stageMap[stage] || 'bg-slate-100 text-slate-700'}`}>
       {label}
     </span>
   );
@@ -279,9 +298,11 @@ export function Checkbox({ checked, onChange, label, className = '' }: {
 export function OverdueBadge({ days }: { days: number }) {
   const { t } = useApp();
   return (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 rounded-full text-xs font-bold">
-      <AlertTriangle size={10} />
-      {t('overdueLabel')} · {t('overdueDays', { n: days })}
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-gradient-to-r from-rose-50 to-red-100 dark:from-rose-950/60 dark:to-red-950/40 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-800 rounded-full text-[11px] font-bold shadow-2xs">
+      <AlertTriangle size={11} className="text-rose-500 animate-bounce" />
+      <span>{t('overdueLabel')}</span>
+      <span className="w-1 h-1 rounded-full bg-rose-400" />
+      <span>{t('overdueDays', { n: days })}</span>
     </span>
   );
 }
@@ -292,10 +313,11 @@ export function LanguageToggle() {
   return (
     <button
       onClick={() => setLang(lang === 'en' ? 'kn' : 'en')}
-      className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 text-sm font-medium border border-teal-200 dark:border-teal-800 transition-colors"
+      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-teal-50/80 dark:bg-teal-950/60 hover:bg-teal-100 text-teal-800 dark:text-teal-200 text-xs font-bold border border-teal-200/80 dark:border-teal-800/80 transition-all shadow-2xs active:scale-95"
       aria-label="Toggle language"
     >
-      {lang === 'en' ? 'ಕನ್ನಡ' : 'English'}
+      <span className={`w-2 h-2 rounded-full ${lang === 'kn' ? 'bg-amber-500' : 'bg-teal-500'}`} />
+      <span>{lang === 'en' ? 'ಕನ್ನಡ' : 'English'}</span>
     </button>
   );
 }

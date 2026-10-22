@@ -6,385 +6,421 @@ import {
   Camera,
   Baby,
   Heart,
-  BarChart2,
+  BarChart3,
   Tent,
   AlertTriangle,
   Calendar,
   ChevronRight,
   ClipboardList,
+  Sparkles,
+  ArrowRight,
+  MapPin,
+  Clock,
+  ShieldAlert,
+  MessageSquare,
+  Activity,
+  Flame,
+  Eye,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import Layout from '../components/Layout';
-import { Card, StatCard, SectionHeader, EmptyState } from '../components/ui';
+import { Card, StatCard, SectionHeader, EmptyState, RiskBadge, OverdueBadge, ReadAloudBtn } from '../components/ui';
 import { db } from '../db/database';
+import type { Screening, Patient } from '../types/models';
 
-/* ─────────────────────────── Helpers ──────────────────────────── */
-
-function getTodayRange(): { start: number; end: number } {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-  const end = start + 86_400_000; // + 24 h
-  return { start, end };
-}
-
-function getGreetingKey(): string {
-  const hour = new Date().getHours();
-  if (hour < 12) return 'home.greeting.morning';
-  if (hour < 17) return 'home.greeting.afternoon';
-  return 'home.greeting.evening';
-}
-
-function daysOverdue(dateMs: number): number {
-  return Math.floor((Date.now() - dateMs) / 86_400_000);
-}
-
-/* ───────────────────────── Quick Action Cell ───────────────────── */
-
-interface ActionItem {
-  icon: React.ReactNode;
-  labelKey: string;
-  route: string;
-  color: string;
-  bg: string;
-}
-
-interface QuickActionCellProps {
-  item: ActionItem;
-  onPress: (route: string) => void;
-}
-
-const QuickActionCell: React.FC<QuickActionCellProps> = ({ item, onPress }) => {
-  const { t } = useApp();
-  return (
-    <button
-      onClick={() => onPress(item.route)}
-      className={`flex flex-col items-center justify-center gap-2 rounded-2xl p-4 min-h-[90px] shadow-sm border border-gray-100 active:scale-95 transition-transform focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 ${item.bg}`}
-      aria-label={t(item.labelKey)}
-    >
-      <span className={`${item.color}`}>{item.icon}</span>
-      <span className="text-xs font-semibold text-gray-700 text-center leading-tight">
-        {t(item.labelKey)}
-      </span>
-    </button>
-  );
-};
-
-/* ─────────────────────────── Main Component ────────────────────── */
-
-const Home: React.FC = () => {
+export default function Home() {
   const navigate = useNavigate();
-  const { t, lang, role, settings } = useApp();
-
-  /* ── Live queries ── */
-
-  const { start: todayStart, end: todayEnd } = useMemo(() => getTodayRange(), []);
-
-  const todayScreenings = useLiveQuery(
-    () =>
-      db.screenings
-        .where('createdAt')
-        .between(todayStart, todayEnd)
-        .toArray(),
-    [todayStart, todayEnd]
-  );
-
-  const allScreenings = useLiveQuery(() => db.screenings.toArray(), []);
-
-  const allPatients = useLiveQuery(() => db.patients?.toArray?.() ?? Promise.resolve([]), []);
-
-  /* ── Derived counts ── */
-
-  const overdueItems = useMemo(() => {
-    if (!allScreenings) return [];
-    const cutoff = Date.now();
-    return allScreenings.filter((s: any) => {
-      const followUp: number | undefined = s.followUpDate ?? s.referralDate;
-      if (!followUp) return false;
-      return followUp < cutoff && !s.appointmentKept;
-    });
-  }, [allScreenings]);
-
-  const highRiskCases = useMemo(() => {
-    if (!allScreenings) return [];
-    return allScreenings.filter(
-      (s: any) => s.riskLevel === 'high' || s.riskLevel === 'very_high'
-    );
-  }, [allScreenings]);
-
-  const recentScreenings = useMemo(() => {
-    if (!allScreenings) return [];
-    return [...allScreenings]
-      .sort((a: any, b: any) => (b.createdAt ?? 0) - (a.createdAt ?? 0))
-      .slice(0, 3);
-  }, [allScreenings]);
-
-  const overdueTop3 = useMemo(() => overdueItems.slice(0, 3), [overdueItems]);
-
-  /* ── Quick actions ── */
-
-  const quickActions: ActionItem[] = [
-    {
-      icon: <ClipboardList size={26} />,
-      labelKey: 'home.action.newScreening',
-      route: '/screening/new',
-      color: 'text-teal-600',
-      bg: 'bg-teal-50',
-    },
-    {
-      icon: <Camera size={26} />,
-      labelKey: 'home.action.captureImage',
-      route: '/capture',
-      color: 'text-coral-500',
-      bg: 'bg-orange-50',
-    },
-    {
-      icon: <Baby size={26} />,
-      labelKey: 'home.action.childCare',
-      route: '/child-care',
-      color: 'text-purple-600',
-      bg: 'bg-purple-50',
-    },
-    {
-      icon: <Heart size={26} />,
-      labelKey: 'home.action.selfExam',
-      route: '/self-exam',
-      color: 'text-red-500',
-      bg: 'bg-red-50',
-    },
-    {
-      icon: <Users size={26} />,
-      labelKey: 'home.action.habitCoach',
-      route: '/habit-coach',
-      color: 'text-amber-600',
-      bg: 'bg-amber-50',
-    },
-    {
-      icon: <BarChart2 size={26} />,
-      labelKey: 'home.action.dashboard',
-      route: '/dashboard',
-      color: 'text-blue-600',
-      bg: 'bg-blue-50',
-    },
-  ];
-
-  /* ── Greeting ── */
-
-  const greetingKey = getGreetingKey();
-  const userName: string =
-    (settings as any)?.workerName ?? (settings as any)?.userName ?? '';
+  const { t, lang, role } = useApp();
 
   const isHealthWorker = role === 'health_worker';
 
-  /* ── Render ── */
+  // Live queries
+  const allScreenings = useLiveQuery(() => db.screenings.toArray(), []) || [];
+  const allPatients = useLiveQuery(() => db.patients.toArray(), []) || [];
+
+  const patientMap = useMemo(() => {
+    const map = new Map<string, Patient>();
+    allPatients.forEach((p) => map.set(p.id, p));
+    return map;
+  }, [allPatients]);
+
+  // Today's Screenings
+  const todayCount = useMemo(() => {
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    return allScreenings.filter((s) => new Date(s.createdAt).getTime() >= startOfToday).length;
+  }, [allScreenings]);
+
+  // Overdue Check
+  const overdueScreenings = useMemo(() => {
+    const now = Date.now();
+    return allScreenings.filter((s) => {
+      const createdTime = new Date(s.createdAt).getTime();
+      const days = Math.floor((now - createdTime) / (1000 * 60 * 60 * 24));
+      const isRefOverdue =
+        (s.stage === 'referral_recommended' || s.stage === 'appointment_pending') &&
+        days > 14 &&
+        !s.appointmentAttended;
+
+      const isFollowUpOverdue =
+        s.followUpDate && now > new Date(s.followUpDate).getTime() && s.stage !== 'closed';
+
+      return isRefOverdue || isFollowUpOverdue;
+    });
+  }, [allScreenings]);
+
+  // High risk count
+  const highRiskCount = useMemo(() => {
+    return allScreenings.filter((s) => s.riskLevel === 'HIGH').length;
+  }, [allScreenings]);
+
+  // Recent 3 screenings
+  const recent3 = useMemo(() => {
+    return [...allScreenings]
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 3);
+  }, [allScreenings]);
+
+  // Time based greeting
+  const greeting = useMemo(() => {
+    const hr = new Date().getHours();
+    if (hr < 12) return t('goodMorning');
+    if (hr < 17) return t('goodAfternoon');
+    return t('goodEvening');
+  }, [t]);
+
+  // Quick Action Config
+  const quickActions = [
+    {
+      title: t('newScreening'),
+      desc: lang === 'kn' ? '೫ ಹಂತದ ತಪಾಸಣೆ' : '5-Step Wizard',
+      route: '/screen',
+      icon: ClipboardList,
+      gradient: 'from-teal-600 to-teal-700',
+      iconColor: 'text-white',
+      accent: 'bg-teal-600',
+    },
+    {
+      title: t('captureImage'),
+      desc: lang === 'kn' ? 'ಸ್ಮಾರ್ಟ್ ಕ್ಯಾಮರಾ' : 'Quality Guard AI',
+      route: '/capture',
+      icon: Camera,
+      gradient: 'from-rose-500 to-coral-500',
+      iconColor: 'text-white',
+      accent: 'bg-rose-500',
+    },
+    {
+      title: t('childCare'),
+      desc: 'ಪುಟ್ಟ ನಗು (0–12y)',
+      route: '/child-care',
+      icon: Baby,
+      gradient: 'from-pink-500 to-rose-600',
+      iconColor: 'text-white',
+      accent: 'bg-pink-500',
+    },
+    {
+      title: t('selfExam'),
+      desc: lang === 'kn' ? 'ಮಾಸಿಕ ೨-ನಿಮಿಷ' : 'Monthly Mirror Check',
+      route: '/self-exam',
+      icon: Eye,
+      gradient: 'from-indigo-600 to-indigo-700',
+      iconColor: 'text-white',
+      accent: 'bg-indigo-600',
+    },
+    {
+      title: t('habitCoach'),
+      desc: lang === 'kn' ? 'ತಂಬಾಕು ತ್ಯಜಿಸಿ' : 'Quit Tobacco Support',
+      route: '/habit-coach',
+      icon: Flame,
+      gradient: 'from-amber-500 to-orange-600',
+      iconColor: 'text-white',
+      accent: 'bg-amber-500',
+    },
+    {
+      title: t('dashboard'),
+      desc: lang === 'kn' ? 'ಪ್ರಗತಿ ವಿಶ್ಲೇಷಣೆ' : 'Live Continuum Analytics',
+      route: '/dashboard',
+      icon: BarChart3,
+      gradient: 'from-emerald-600 to-teal-700',
+      iconColor: 'text-white',
+      accent: 'bg-emerald-600',
+    },
+  ];
 
   return (
-    <Layout>
-      <div className="flex flex-col gap-5 px-4 pb-24 pt-4">
+    <Layout showDisclaimer>
+      <div className="max-w-xl mx-auto px-4 py-4 space-y-4">
+        {/* Hero Welcome Card with Karnataka Healthcare Accent */}
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-teal-700 via-teal-800 to-slate-900 text-white p-5 shadow-md">
+          {/* Subtle Background Glow Circles */}
+          <div className="absolute -top-12 -right-12 w-44 h-44 bg-teal-400/20 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute -bottom-10 -left-10 w-36 h-36 bg-coral-500/20 rounded-full blur-xl pointer-events-none" />
 
-        {/* ── Greeting Header ── */}
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="text-sm text-gray-500">{t(greetingKey)}</p>
-            <h1
-              className={`text-2xl font-bold text-gray-800 mt-0.5 ${lang === 'kn' ? 'font-kannada' : ''}`}
-            >
-              {userName || t('home.greeting.defaultName')}
-            </h1>
-            {isHealthWorker && (
-              <span className="inline-block mt-1 text-xs font-semibold bg-teal-100 text-teal-700 px-2 py-0.5 rounded-full">
-                {t('home.role.healthWorker')}
+          <div className="relative z-10 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md text-[11px] font-semibold text-teal-100 border border-white/20">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                {isHealthWorker
+                  ? lang === 'kn'
+                    ? 'ಆಶಾ / ಎಎನ್ಎಂ ಕಾರ್ಯಕರ್ತ ಮೋಡ್'
+                    : 'ASHA / ANM Worker Mode'
+                  : lang === 'kn'
+                  ? 'ಸಾರ್ವಜನಿಕ / ರೋಗಿ ಮೋಡ್'
+                  : 'Individual Health Mode'}
               </span>
-            )}
+
+              {isHealthWorker && (
+                <button
+                  onClick={() => navigate('/camp')}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-coral-500 hover:bg-coral-600 text-white text-[11px] font-bold shadow-xs active:scale-95 transition-all"
+                >
+                  <Tent size={13} />
+                  {t('campMode')}
+                </button>
+              )}
+            </div>
+
+            <div>
+              <h2 className="text-xl font-black tracking-tight text-white">
+                {greeting}, {isHealthWorker ? 'ASHA Worker' : 'Welcome'}!
+              </h2>
+              <p className="text-xs text-teal-100/90 font-medium leading-relaxed mt-0.5">
+                {lang === 'kn'
+                  ? 'ಕರ್ನಾಟಕದ ಬಾಯಿ ಕ್ಯಾನ್ಸರ್ ಮುಂಚಿತ ಪತ್ತೆ ಮತ್ತು ರೆಫರಲ್ ಟ್ರ್ಯಾಕಿಂಗ್ ವ್ಯವಸ್ಥೆ.'
+                  : 'Empowering early oral cancer screening, clinical capture guard, and referral tracking.'}
+              </p>
+            </div>
+
+            {/* Quick Action Banner inside Hero */}
+            <div className="pt-2 flex items-center justify-between border-t border-white/10">
+              <span className="text-[11px] text-teal-200">
+                {allScreenings.length} {lang === 'kn' ? 'ಪ್ರಕರಣಗಳು ದಾಖಲಾಗಿವೆ' : 'cases on device'}
+              </span>
+              <button
+                onClick={() => navigate('/screen')}
+                className="bg-white hover:bg-teal-50 text-teal-800 text-xs font-bold py-1.5 px-3.5 rounded-xl shadow-xs flex items-center gap-1 active:scale-95 transition-all"
+              >
+                + {t('newScreening')}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* 4 Stat Cards Row */}
+        <div className="grid grid-cols-2 gap-2.5">
+          <StatCard
+            label={t('todayScreenings')}
+            value={todayCount}
+            icon={<ClipboardList size={20} />}
+            color="teal"
+            onClick={() => navigate('/cases')}
+          />
+          <StatCard
+            label={t('overdueFollowUps')}
+            value={overdueScreenings.length}
+            icon={<AlertTriangle size={20} />}
+            color="amber"
+            alert={overdueScreenings.length > 0}
+            onClick={() => navigate('/cases')}
+          />
+          <StatCard
+            label={t('highRiskCases')}
+            value={highRiskCount}
+            icon={<Heart size={20} />}
+            color="red"
+            alert={highRiskCount > 0}
+            onClick={() => navigate('/cases')}
+          />
+          <StatCard
+            label={lang === 'kn' ? 'ಒಟ್ಟು ರೋಗಿಗಳು' : 'Total Patients'}
+            value={allPatients.length}
+            icon={<Users size={20} />}
+            color="blue"
+            onClick={() => navigate('/cases')}
+          />
+        </div>
+
+        {/* 6 Quick Action Grid */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between px-0.5">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              {t('quickActions')}
+            </h3>
+            <span className="text-[10px] text-teal-600 dark:text-teal-400 font-semibold">
+              {lang === 'kn' ? 'ಆಫ್‌ಲೈನ್ ಸಿದ್ಧ' : 'Offline Ready'}
+            </span>
           </div>
 
-          {/* Camp Mode – health worker only */}
-          {isHealthWorker && (
-            <button
-              onClick={() => navigate('/camp')}
-              className="flex items-center gap-1.5 bg-teal-600 text-white text-xs font-semibold px-3 py-2 rounded-xl shadow-md active:scale-95 transition-transform min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
-              aria-label={t('home.campMode')}
-            >
-              <Tent size={16} />
-              {t('home.campMode')}
-            </button>
-          )}
-        </div>
-
-        {/* ── Stat Cards ── */}
-        <div className="grid grid-cols-2 gap-3">
-          <StatCard
-            label={t('home.stat.todayScreenings')}
-            value={todayScreenings?.length ?? 0}
-            icon={<ClipboardList size={20} className="text-teal-600" />}
-            color="teal"
-          />
-          <StatCard
-            label={t('home.stat.overdueFollowUps')}
-            value={overdueItems.length}
-            icon={<AlertTriangle size={20} className="text-amber-500" />}
-            color="amber"
-            alert={overdueItems.length > 0}
-          />
-          <StatCard
-            label={t('home.stat.highRisk')}
-            value={highRiskCases.length}
-            icon={<Heart size={20} className="text-red-500" />}
-            color="red"
-            alert={highRiskCases.length > 0}
-          />
-          <StatCard
-            label={t('home.stat.totalPatients')}
-            value={allPatients?.length ?? (allScreenings?.length ?? 0)}
-            icon={<Users size={20} className="text-blue-600" />}
-            color="blue"
-          />
-        </div>
-
-        {/* ── Quick Actions ── */}
-        <SectionHeader title={t('home.section.quickActions')} />
-        <div className="grid grid-cols-3 gap-3">
-          {quickActions.map((action) => (
-            <QuickActionCell
-              key={action.route}
-              item={action}
-              onPress={(route) => navigate(route)}
-            />
-          ))}
-        </div>
-
-        {/* ── Overdue Follow-ups ── */}
-        {isHealthWorker && (
-          <>
-            <SectionHeader
-              title={t('home.section.overdueFollowUps')}
-              action={
-                overdueItems.length > 3
-                  ? {
-                      label: t('home.seeAll'),
-                      onPress: () => navigate('/follow-ups'),
-                    }
-                  : undefined
-              }
-            />
-
-            {overdueTop3.length === 0 ? (
-              <EmptyState
-                icon={<Calendar size={32} className="text-gray-300" />}
-                message={t('home.noOverdue')}
-              />
-            ) : (
-              <div className="flex flex-col gap-2">
-                {overdueTop3.map((item: any) => {
-                  const overdueDays = daysOverdue(item.followUpDate ?? item.referralDate ?? 0);
-                  return (
-                    <Card key={item.id ?? item.patientId}>
-                      <button
-                        onClick={() =>
-                          navigate(`/patient/${item.patientId ?? item.id}`)
-                        }
-                        className="w-full flex items-center gap-3 py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
-                        aria-label={`${item.patientName ?? t('home.unknownPatient')} – ${overdueDays} ${t('home.daysOverdue')}`}
-                      >
-                        <div className="flex-shrink-0 w-9 h-9 rounded-full bg-amber-100 flex items-center justify-center">
-                          <AlertTriangle size={18} className="text-amber-600" />
-                        </div>
-                        <div className="flex-1 text-left min-w-0">
-                          <p className="text-sm font-semibold text-gray-800 truncate">
-                            {item.patientName ?? t('home.unknownPatient')}
-                          </p>
-                          <p className="text-xs text-amber-600 font-medium">
-                            {overdueDays} {t('home.daysOverdue')}
-                          </p>
-                        </div>
-                        <ChevronRight size={16} className="text-gray-400 flex-shrink-0" />
-                      </button>
-                    </Card>
-                  );
-                })}
-              </div>
-            )}
-          </>
-        )}
-
-        {/* ── Recent Screenings ── */}
-        <SectionHeader
-          title={t('home.section.recentScreenings')}
-          action={
-            (allScreenings?.length ?? 0) > 3
-              ? { label: t('home.seeAll'), onPress: () => navigate('/screenings') }
-              : undefined
-          }
-        />
-
-        {recentScreenings.length === 0 ? (
-          <EmptyState
-            icon={<ClipboardList size={32} className="text-gray-300" />}
-            message={t('home.noScreenings')}
-            cta={{
-              label: t('home.action.newScreening'),
-              onPress: () => navigate('/screening/new'),
-            }}
-          />
-        ) : (
-          <div className="flex flex-col gap-2">
-            {recentScreenings.map((s: any) => {
-              const riskColor =
-                s.riskLevel === 'high' || s.riskLevel === 'very_high'
-                  ? 'text-red-600 bg-red-50'
-                  : s.riskLevel === 'medium'
-                  ? 'text-amber-600 bg-amber-50'
-                  : 'text-green-700 bg-green-50';
-
+          <div className="grid grid-cols-2 gap-2.5">
+            {quickActions.map((action) => {
+              const IconComp = action.icon;
               return (
-                <Card key={s.id}>
-                  <button
-                    onClick={() =>
-                      navigate(`/screening/${s.id}`)
-                    }
-                    className="w-full flex items-center gap-3 py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
-                    aria-label={`${s.patientName ?? t('home.unknownPatient')} – ${t(`risk.${s.riskLevel ?? 'unknown'}`)}`}
+                <div
+                  key={action.route}
+                  onClick={() => navigate(action.route)}
+                  className="card-interactive p-3.5 flex items-center gap-3 group"
+                >
+                  <div
+                    className={`w-11 h-11 rounded-2xl bg-gradient-to-tr ${action.gradient} flex items-center justify-center text-white shadow-xs shrink-0 group-hover:scale-105 transition-transform`}
                   >
-                    <div className="flex-shrink-0 w-9 h-9 rounded-full bg-teal-100 flex items-center justify-center">
-                      <ClipboardList size={18} className="text-teal-600" />
-                    </div>
-                    <div className="flex-1 text-left min-w-0">
-                      <p className="text-sm font-semibold text-gray-800 truncate">
-                        {s.patientName ?? t('home.unknownPatient')}
-                      </p>
-                      <p className="text-xs text-gray-400">
-                        {s.createdAt
-                          ? new Date(s.createdAt).toLocaleDateString(
-                              lang === 'kn' ? 'kn-IN' : 'en-IN',
-                              { day: 'numeric', month: 'short' }
-                            )
-                          : '—'}
-                      </p>
-                    </div>
-                    {s.riskLevel && (
-                      <span
-                        className={`text-xs font-bold px-2 py-1 rounded-full flex-shrink-0 ${riskColor}`}
-                      >
-                        {t(`risk.${s.riskLevel}`)}
-                      </span>
-                    )}
-                    <ChevronRight size={16} className="text-gray-400 flex-shrink-0" />
-                  </button>
-                </Card>
+                    <IconComp size={20} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                      {action.title}
+                    </h4>
+                    <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate">
+                      {action.desc}
+                    </p>
+                  </div>
+                </div>
               );
             })}
           </div>
-        )}
-
-        {/* ── Disclaimer Banner ── */}
-        <div className="mt-2 rounded-2xl bg-gray-50 border border-gray-200 px-4 py-3">
-          <p className="text-xs text-gray-400 leading-relaxed text-center">
-            {t('disclaimer.short')}
-          </p>
         </div>
 
+        {/* Overdue Follow-ups Section */}
+        {isHealthWorker && overdueScreenings.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between px-0.5">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-rose-600 flex items-center gap-1.5">
+                <AlertTriangle size={13} className="text-rose-500 animate-pulse" />
+                {t('overdueFollowUps')} ({overdueScreenings.length})
+              </h3>
+              <button
+                onClick={() => navigate('/cases')}
+                className="text-[11px] font-bold text-teal-600 dark:text-teal-400 flex items-center gap-0.5"
+              >
+                {t('viewAll')} <ChevronRight size={13} />
+              </button>
+            </div>
+
+            <div className="space-y-2">
+              {overdueScreenings.slice(0, 3).map((s) => {
+                const p = patientMap.get(s.patientId);
+                const daysDiff = Math.max(
+                  1,
+                  Math.floor((Date.now() - new Date(s.createdAt).getTime()) / (1000 * 60 * 60 * 24)) - 14
+                );
+                return (
+                  <Card
+                    key={s.id}
+                    onClick={() => navigate(`/cases/${s.id}`)}
+                    className="p-3 border-l-4 border-l-rose-500 flex items-center justify-between cursor-pointer hover:shadow-md transition-shadow"
+                  >
+                    <div className="space-y-0.5 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-xs text-slate-900 dark:text-white truncate">
+                          {p?.name || 'Patient'}
+                        </span>
+                        <RiskBadge level={s.riskLevel} />
+                      </div>
+                      <p className="text-[11px] text-slate-500">
+                        {p?.village || 'Village'} • {s.referralFacility || 'District Hospital'}
+                      </p>
+                    </div>
+
+                    <div className="shrink-0 pl-2">
+                      <OverdueBadge days={daysDiff} />
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Recent Cases Section */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between px-0.5">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              {t('recentCases')}
+            </h3>
+            <button
+              onClick={() => navigate('/cases')}
+              className="text-[11px] font-bold text-teal-600 dark:text-teal-400 flex items-center gap-0.5"
+            >
+              {t('viewAll')} <ChevronRight size={13} />
+            </button>
+          </div>
+
+          {recent3.length === 0 ? (
+            <EmptyState
+              icon={<ClipboardList size={36} className="text-slate-300" />}
+              title={lang === 'kn' ? 'ಇನ್ನೂ ತಪಾಸಣೆ ನಡೆದಿಲ್ಲ' : 'No screenings recorded yet'}
+              subtitle={
+                lang === 'kn'
+                  ? 'ಹೊಸ ತಪಾಸಣೆ ಪ್ರಾರಂಭಿಸಿ ಅಥವಾ ಡೆಮೋ ಡೇಟಾ ಲೋಡ್ ಮಾಡಿ.'
+                  : 'Start a new oral screening or explore with sample patient data.'
+              }
+              action={() => navigate('/screen')}
+              actionLabel={t('newScreening')}
+            />
+          ) : (
+            <div className="space-y-2">
+              {recent3.map((s) => {
+                const p = patientMap.get(s.patientId);
+                return (
+                  <Card
+                    key={s.id}
+                    onClick={() => navigate(`/cases/${s.id}`)}
+                    className="p-3 flex items-center justify-between cursor-pointer hover:shadow-md transition-shadow"
+                  >
+                    <div className="space-y-0.5 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-xs text-slate-900 dark:text-white truncate">
+                          {p?.name || 'Patient'}
+                        </span>
+                        <RiskBadge level={s.riskLevel} />
+                      </div>
+                      <div className="flex items-center gap-3 text-[11px] text-slate-400">
+                        <span>{p?.village || 'Village'}</span>
+                        <span>•</span>
+                        <span>{new Date(s.createdAt).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
+                        {t(`stages.${s.stage}`)}
+                      </span>
+                      <ChevronRight size={14} className="text-slate-400" />
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Ask MukhaRaksha AI Floating Banner */}
+        <div
+          onClick={() => navigate('/chat')}
+          className="p-4 rounded-2xl bg-gradient-to-r from-teal-500/10 via-emerald-500/10 to-teal-500/15 border border-teal-500/30 flex items-center justify-between cursor-pointer active:scale-98 transition-all shadow-xs"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-teal-600 text-white flex items-center justify-center shadow-xs">
+              <MessageSquare size={18} />
+            </div>
+            <div>
+              <div className="flex items-center gap-1.5">
+                <h4 className="text-xs font-bold text-slate-900 dark:text-white">
+                  {t('chatTitle')}
+                </h4>
+                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-teal-600 text-white">
+                  AI / FAQ
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                {lang === 'kn'
+                  ? 'ಬಾಯಿ ಆರೋಗ್ಯ, ಅಡಿಕೆ ಮತ್ತು ಕ್ಯಾನ್ಸರ್ ಪ್ರಶ್ನೆಗಳಿಗೆ ತಕ್ಷಣದ ಉತ್ತರ'
+                  : 'Ask clinical guidance, areca risks, and tobacco cessation'}
+              </p>
+            </div>
+          </div>
+          <ArrowRight size={16} className="text-teal-600 dark:text-teal-400 shrink-0" />
+        </div>
       </div>
     </Layout>
   );
-};
-
-export default Home;
+}

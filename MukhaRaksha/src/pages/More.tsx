@@ -222,34 +222,46 @@ export default function More() {
         </Card>
 
         {/* SECTION 2: AI ASSISTANT (OPTIONAL CLAUDE API KEY) */}
-        <Card className="p-4 space-y-3 border-teal-200 dark:border-teal-800">
+        <Card className="p-4 space-y-3 border-teal-200/80 dark:border-teal-800/80">
           <div className="flex items-center justify-between">
             <h3 className="text-xs font-bold uppercase tracking-wider text-teal-800 dark:text-teal-300 flex items-center gap-1.5">
-              <Sparkles size={14} />
-              {lang === 'kn' ? 'ಐಚ್ಛಿಕ ಕೃತಕ ಬುದ್ಧಿಮತ್ತೆ (Claude AI)' : 'AI Integration (Claude API)'}
+              <Sparkles size={14} className="text-teal-600" />
+              {lang === 'kn' ? 'ಐಚ್ಛಿಕ AI ಸಹಾಯಕ (Claude API)' : 'AI Integration (Claude API)'}
             </h3>
-            <span className="text-[10px] bg-teal-100 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 px-2 py-0.5 rounded-full font-bold">
-              Client-Side
+            <span className="text-[10px] bg-teal-100 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 px-2 py-0.5 rounded-full font-bold">
+              100% Client-Side
             </span>
           </div>
 
-          <p className="text-xs text-gray-500 dark:text-gray-400">
-            {lang === 'kn'
-              ? 'ನಿಮ್ಮ ಸ್ವಂತ Anthropic API ಕೀಯನ್ನು ನಮೂದಿಸಿದರೆ ಬ್ರೌಸರ್‌ನಿಂದ ನೇರವಾಗಿ Claude Haiku ಮೂಲಕ ಪ್ರಶ್ನೋತ್ತರಗಳು ದೊರೆಯುತ್ತವೆ.'
-              : 'Add your own Claude API key to power Ask MukhaRaksha in Kannada & English directly from the browser.'}
-          </p>
+          <div className="p-2.5 rounded-xl bg-teal-50/60 dark:bg-teal-950/30 text-[11px] text-teal-900 dark:text-teal-200 space-y-1 leading-relaxed">
+            <p className="font-semibold">
+              {lang === 'kn'
+                ? '🔒 ಗೌಪ್ಯತೆ ಖಚಿತ: ನಿಮ್ಮ API ಕೀ ನಿಮ್ಮ ಸಾಧನದಲ್ಲಿ ಮಾತ್ರ ಉಳಿಯುತ್ತದೆ.'
+                : '🔒 100% Client-Side Privacy: Your key is stored only on this device.'}
+            </p>
+            <p className="text-slate-600 dark:text-slate-400">
+              {lang === 'kn'
+                ? 'ಕೀ ಇಲ್ಲದಿದ್ದರೂ ಅಂತರ್ನಿರ್ಮಿತ ಕ್ಲಿನಿಕಲ್ ಜ್ಞಾನ ಭಂಡಾರ ಕಾರ್ಯನಿರ್ವಹಿಸುತ್ತದೆ. AI ಎಂದಿಗೂ ರೋಗನಿರ್ಣಯ ಮಾಡುವುದಿಲ್ಲ.'
+                : 'Without an API key, the app uses its offline clinical knowledge base. AI never diagnoses.'}
+            </p>
+          </div>
 
-          <div className="flex gap-2">
-            <input
-              type="password"
-              value={apiKeyInput}
-              onChange={(e) => setApiKeyInput(e.target.value)}
-              placeholder="sk-ant-api03-..."
-              className="input-field text-xs py-2 flex-1 font-mono"
-            />
-            <button onClick={handleSaveApiKey} className="btn-primary py-2 px-3 text-xs shrink-0 font-bold">
-              {t('save')}
-            </button>
+          <div>
+            <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">
+              Anthropic Claude API Key
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="password"
+                value={apiKeyInput}
+                onChange={(e) => setApiKeyInput(e.target.value)}
+                placeholder="sk-ant-api03-..."
+                className="input-field text-xs py-2 flex-1 font-mono"
+              />
+              <button onClick={handleSaveApiKey} className="btn-primary py-2 px-3.5 text-xs shrink-0 font-bold">
+                {t('save')}
+              </button>
+            </div>
           </div>
 
           {/* Custom Video URL */}
