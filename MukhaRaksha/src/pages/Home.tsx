@@ -109,7 +109,7 @@ export default function Home() {
     },
     {
       title: t('childCare'),
-      desc: 'ಪುಟ್ಟ ನಗು (0–12y)',
+      desc: 'ಮಕ್ಕಳ ಪೌಷ್ಟಿಕ ಆರೈಕೆ',
       route: '/child-care',
       icon: Baby,
       gradient: 'from-pink-500 to-rose-600',
@@ -340,7 +340,7 @@ export default function Home() {
 
           {/* ── Right Column (lg:col-span-4 on PC) ─────────────────────────────── */}
           <div className="lg:col-span-4 space-y-4">
-            {/* Ask MukhaRaksha AI Quick Assistant Box */}
+            {/* Ask Gram Paricharya AI Quick Assistant Box */}
             <Card className="p-4 bg-gradient-to-br from-teal-500/10 via-emerald-500/5 to-teal-500/15 border-teal-500/30 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">

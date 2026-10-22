@@ -64,8 +64,8 @@ const CLINICAL_KNOWLEDGE_BASE: KnowledgeItem[] = [
   },
   {
     keywords: ['child', 'baby', 'teething', 'bottle', 'ಮಗು', 'ಹಲ್ಲು', 'ಹಾಲು'],
-    en: 'For children under 6 years, avoid bedtime milk bottles and sweet drinks to prevent early childhood caries. Always consult our "Little Smiles" section in this app for age-banded nutrition and oral hygiene guides.',
-    kn: '೬ ವರ್ಷದೊಳಗಿನ ಮಕ್ಕಳಿಗೆ ರಾತ್ರಿ ಮಲಗುವಾಗ ಹಾಲಿನ ಬಾಟಲ್ ಕೊಡಬೇಡಿ. ಹೆಚ್ಚಿನ ಮಾಹಿತಿಗಾಗಿ ಮುಖರಕ್ಷಾ ಅಪ್ಲಿಕೇಶನ್‌ನಲ್ಲಿರುವ "ಪುಟ್ಟ ನಗು" ವಿಭಾಗವನ್ನು ವೀಕ್ಷಿಸಿ.',
+    en: 'For children under 6 years, avoid bedtime milk bottles and sweet drinks to prevent early childhood caries. See the Child & Nutrition Care section for age-banded nutrition and oral hygiene guidance.',
+    kn: '೬ ವರ್ಷದೊಳಗಿನ ಮಕ್ಕಳಿಗೆ ರಾತ್ರಿ ಮಲಗುವಾಗ ಹಾಲಿನ ಬಾಟಲ್ ಕೊಡಬೇಡಿ. ಹೆಚ್ಚಿನ ಮಾಹಿತಿಗಾಗಿ ಗ್ರಾಮ ಪರಿಚರ್ಯೆ ಅಪ್ಲಿಕೇಶನ್‌ನಲ್ಲಿರುವ ಮಕ್ಕಳ ಪೌಷ್ಟಿಕ ಆರೈಕೆ ವಿಭಾಗವನ್ನು ವೀಕ್ಷಿಸಿ.',
   },
 ];
 
@@ -117,8 +117,8 @@ export default function Chat() {
     }
 
     return lang === 'kn'
-      ? 'ಮುಖರಕ್ಷಾ ಕ್ಲಿನಿಕಲ್ ಜ್ಞಾನ ಭಂಡಾರ: ೨ ವಾರಗಳಿಗಿಂತ ಹೆಚ್ಚು ಕಾಲ ಉಳಿಯುವ ಯಾವುದೇ ಬಾಯಿ ಹುಣ್ಣು, ಕೆಂಪು ಅಥವಾ ಬಿಳಿ ಚುಕ್ಕೆಗಳು, ಅಥವಾ ಬಾಯಿ ತೆರೆಯಲು ಕಷ್ಟವಾಗಿದ್ದರೆ ವಿಳಂಬವಿಲ್ಲದೆ ತಪಾಸಣೆ ಮಾಡಿಸಿ. ತಂಬಾಕು ತ್ಯಜಿಸಲು ೧೮೦೦-೧೧-೨೩೫೬ ಗೆ ಉಚಿತ ಕರೆ ಮಾಡಿ. (ಆನ್‌ಲೈನ್ Claude AI ಸಕ್ರಿಯಗೊಳಿಸಲು Settings ನಲ್ಲಿ ನಿಮ್ಮ API Key ನಮೂದಿಸಬಹುದು).'
-      : 'MukhaRaksha Clinical Knowledge: Persistent oral ulcers lasting >2 weeks, unscrapable white or velvety red mucosal patches, or difficulty opening the mouth are red flags requiring clinical examination. Call the National Tobacco Quitline at 1800-11-2356 for cessation guidance. (To enable cloud-powered conversational AI, add your Claude API key in Settings).';
+      ? 'ಗ್ರಾಮ ಪರಿಚರ್ಯೆ ಕ್ಲಿನಿಕಲ್ ಜ್ಞಾನ ಭಂಡಾರ: ೨ ವಾರಗಳಿಗಿಂತ ಹೆಚ್ಚು ಕಾಲ ಉಳಿಯುವ ಯಾವುದೇ ಬಾಯಿ ಹುಣ್ಣು, ಕೆಂಪು ಅಥವಾ ಬಿಳಿ ಚುಕ್ಕೆಗಳು, ಅಥವಾ ಬಾಯಿ ತೆರೆಯಲು ಕಷ್ಟವಾಗಿದ್ದರೆ ವಿಳಂಬವಿಲ್ಲದೆ ತಪಾಸಣೆ ಮಾಡಿಸಿ. ತಂಬಾಕು ತ್ಯಜಿಸಲು ೧೮೦೦-೧೧-೨೩೫೬ ಗೆ ಉಚಿತ ಕರೆ ಮಾಡಿ. (ಆನ್‌ಲೈನ್ Claude AI ಸಕ್ರಿಯಗೊಳಿಸಲು Settings ನಲ್ಲಿ ನಿಮ್ಮ API Key ನಮೂದಿಸಬಹುದು).'
+      : 'Gram Paricharya Clinical Knowledge: Persistent oral ulcers lasting >2 weeks, unscrapable white or velvety red mucosal patches, or difficulty opening the mouth are red flags requiring clinical examination. Call the National Tobacco Quitline at 1800-11-2356 for cessation guidance. (To enable cloud-powered conversational AI, add your Claude API key in Settings).';
   };
 
   const handleSendMessage = async (userText: string) => {
@@ -151,7 +151,7 @@ export default function Chat() {
             model: 'claude-3-haiku-20240307',
             max_tokens: 500,
             system:
-              'You are MukhaRaksha, a clinical oral cancer awareness and tobacco cessation assistant for Karnataka, India. Provide warm, medically sound information in the user\'s language (natural Kannada if queried in Kannada, English if in English). ALWAYS state clearly that this app supports screening and awareness and NEVER diagnose or prescribe medications. Always advise physical clinical examination and biopsy when red flags are present.',
+              'You are Gram Paricharya, a community health, oral cancer awareness, child nutrition and tobacco cessation assistant for Karnataka, India. Provide warm, medically sound information in the user\'s language (natural Kannada if queried in Kannada, English if in English). ALWAYS state clearly that this app supports screening and awareness and NEVER diagnose or prescribe medications. Always advise physical clinical examination and biopsy when red flags are present.',
             messages: [
               ...messages.map((m) => ({ role: m.role, content: m.content })),
               { role: 'user', content: query },
@@ -243,8 +243,8 @@ export default function Chat() {
           <ShieldAlert size={15} className="text-amber-600 shrink-0" />
           <p className="text-[11px] text-amber-800 dark:text-amber-300 font-medium leading-tight">
             {lang === 'kn'
-              ? 'ಮುಖರಕ್ಷಾ AI ರೋಗನಿರ್ಣಯ ಮಾಡುವುದಿಲ್ಲ. ಇದು ಕೇವಲ ಜಾಗೃತಿ ಮತ್ತು ಸ್ಕ್ರೀನಿಂಗ್ ಮಾರ್ಗದರ್ಶನ ನೀಡುತ್ತದೆ.'
-              : 'MukhaRaksha AI supports screening and education. It never diagnoses. Always consult a dental surgeon or doctor.'}
+              ? 'ಗ್ರಾಮ ಪರಿಚರ್ಯೆ AI ರೋಗನಿರ್ಣಯ ಮಾಡುವುದಿಲ್ಲ. ಇದು ಕೇವಲ ಜಾಗೃತಿ ಮತ್ತು ಸ್ಕ್ರೀನಿಂಗ್ ಮಾರ್ಗದರ್ಶನ ನೀಡುತ್ತದೆ.'
+              : 'Gram Paricharya AI supports screening and education. It never diagnoses. Always consult a dental surgeon or doctor.'}
           </p>
         </div>
 
@@ -257,7 +257,7 @@ export default function Chat() {
                   <Sparkles size={24} />
                 </div>
                 <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">
-                  {lang === 'kn' ? 'ಮುಖರಕ್ಷಾ AI ಸಹಾಯಕಿಗೆ ಸ್ವಾಗತ' : 'Ask MukhaRaksha Clinical AI'}
+                  {lang === 'kn' ? 'ಗ್ರಾಮ ಪರಿಚರ್ಯೆ AI ಸಹಾಯಕಿಗೆ ಸ್ವಾಗತ' : 'Ask Gram Paricharya Clinical AI'}
                 </h3>
                 <p className="text-xs text-slate-400 max-w-xs mx-auto">
                   {lang === 'kn'
@@ -295,7 +295,7 @@ export default function Chat() {
                 >
                   {!isUser && (
                     <div className="w-7 h-7 rounded-lg bg-teal-600 text-white flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold shadow-2xs">
-                      ಮ
+                      ಗ
                     </div>
                   )}
 
@@ -334,7 +334,7 @@ export default function Chat() {
           {isLoading && (
             <div className="flex items-center gap-2 text-xs text-teal-600 dark:text-teal-400 font-medium italic py-2">
               <Bot size={16} className="animate-spin text-teal-600" />
-              <span>{lang === 'kn' ? 'ಮುಖರಕ್ಷಾ AI ಆಲೋಚಿಸುತ್ತಿದೆ...' : 'MukhaRaksha is generating guidance...'}</span>
+              <span>{lang === 'kn' ? 'ಗ್ರಾಮ ಪರಿಚರ್ಯೆ AI ಆಲೋಚಿಸುತ್ತಿದೆ...' : 'Gram Paricharya is generating guidance...'}</span>
             </div>
           )}
 

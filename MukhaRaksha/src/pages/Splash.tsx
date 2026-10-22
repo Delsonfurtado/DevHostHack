@@ -70,7 +70,7 @@ const Splash: React.FC = () => {
             className="font-kannada text-teal-600 select-none"
             style={{ fontSize: 64, lineHeight: 1, fontWeight: 700 }}
           >
-            ಮ
+            ಗ
           </span>
         </div>
 
@@ -80,11 +80,11 @@ const Splash: React.FC = () => {
             className="font-kannada text-white font-bold tracking-wide"
             style={{ fontSize: 32, lineHeight: 1.2 }}
           >
-            ಮುಖರಕ್ಷ
+            ಗ್ರಾಮ ಪರಿಚರ್ಯೆ
           </h1>
           {/* App name in English */}
           <p className="text-teal-100 font-semibold text-xl mt-1 tracking-widest uppercase">
-            MukhaRaksha
+            Gram Paricharya
           </p>
         </div>
 

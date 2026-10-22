@@ -6,7 +6,7 @@ export type TranslationKey = keyof typeof translations.en;
 const translations = {
   en: {
     // App
-    appName: 'MukhaRaksha',
+    appName: 'Gram Paricharya',
     appTagline: 'Oral Cancer Screening & Awareness',
     disclaimer: 'This app supports screening and awareness. It does not diagnose cancer. Always consult a doctor or dentist.',
 
@@ -19,8 +19,8 @@ const translations = {
 
     // Splash
     splash: {
-      tagline: 'Oral Cancer Screening & Awareness for Karnataka',
-      loading: 'Loading MukhaRaksha...',
+      tagline: 'Community Health, Child Nutrition & Care for Karnataka',
+      loading: 'Loading Gram Paricharya...',
       disclaimer: 'This app supports screening and awareness. It does not diagnose cancer. Always consult a doctor or dentist.',
       version: 'v1.0.0 · Offline Ready PWA',
     },
@@ -28,7 +28,7 @@ const translations = {
     // Onboarding
     onboarding: {
       slide1: {
-        title: 'Welcome to MukhaRaksha',
+        title: 'Welcome to Gram Paricharya',
         subtitle: 'Your trusted mobile health companion for early oral cancer detection and awareness in Karnataka.',
       },
       slide2: {
@@ -46,7 +46,7 @@ const translations = {
       slideLabel: 'Slide {n}',
       disclaimer: 'Clinical aid for community health workers. Does not replace professional biopsy or dental diagnosis.',
     },
-    onboardingTitle1: 'Welcome to MukhaRaksha',
+    onboardingTitle1: 'Welcome to Gram Paricharya',
     onboardingDesc1: 'Your trusted companion for oral cancer screening and awareness in Karnataka.',
     onboardingTitle2: 'Screen & Detect Early',
     onboardingDesc2: 'Simple step-by-step screening for ASHA/ANM workers, dentists, and the public. Early detection saves lives.',
@@ -205,7 +205,7 @@ const translations = {
     selectSite: 'Select Site',
 
     // Child Care
-    childCareTitle: 'Gram Sethu',
+    childCareTitle: 'Child & Nutrition Care',
     childCareSubtitle: 'Child & Nutrition Care Questionnaire',
     childName: 'Child\'s Name',
     caregiverName: 'Caregiver\'s Name',
@@ -266,8 +266,8 @@ const translations = {
     good: 'Good job!',
     keepLearning: 'Keep learning!',
 
-    // Ask MukhaRaksha Chatbot
-    chatTitle: 'Ask MukhaRaksha',
+    // Ask Gram Paricharya Chatbot
+    chatTitle: 'Ask Gram Paricharya',
     chatPlaceholder: 'Ask a question about oral health...',
     chatSend: 'Send',
     chatDisclaimer: 'AI responses are for awareness only. Always consult a qualified doctor.',
@@ -292,7 +292,7 @@ const translations = {
     restoreData: 'Restore Data (JSON)',
     facilities: 'Nearby Facilities',
     addFacility: 'Add Facility',
-    about: 'About MukhaRaksha',
+    about: 'About Gram Paricharya',
     version: 'Version 1.0.0',
 
     // Dashboard
@@ -348,7 +348,7 @@ const translations = {
 
   kn: {
     // App
-    appName: 'ಮುಖರಕ್ಷಾ',
+    appName: 'ಗ್ರಾಮ ಪರಿಚರ್ಯೆ',
     appTagline: 'ಬಾಯಿ ಕ್ಯಾನ್ಸರ್ ತಪಾಸಣೆ ಮತ್ತು ಜಾಗೃತಿ',
     disclaimer: 'ಈ ಅಪ್ಲಿಕೇಶನ್ ತಪಾಸಣೆ ಮತ್ತು ಜಾಗೃತಿಗೆ ಸಹಾಯ ಮಾಡುತ್ತದೆ. ಇದು ಕ್ಯಾನ್ಸರ್ ರೋಗನಿರ್ಣಯ ಮಾಡುವುದಿಲ್ಲ. ಯಾವಾಗಲೂ ವೈದ್ಯರ ಅಥವಾ ದಂತ ವೈದ್ಯರ ಸಲಹೆ ಪಡೆಯಿರಿ.',
 
@@ -361,8 +361,8 @@ const translations = {
 
     // Splash
     splash: {
-      tagline: 'ಕರ್ನಾಟಕದಲ್ಲಿ ಬಾಯಿ ಕ್ಯಾನ್ಸರ್ ಮುಂಚಿತ ಪತ್ತೆ ಮತ್ತು ಜಾಗೃತಿ',
-      loading: 'ಮುಖರಕ್ಷಾ ಲೋಡ್ ಆಗುತ್ತಿದೆ...',
+      tagline: 'ಕರ್ನಾಟಕದಲ್ಲಿ ಸಮುದಾಯ ಆರೋಗ್ಯ, ಮಕ್ಕಳ ಪೌಷ್ಟಿಕತೆ ಮತ್ತು ಆರೈಕೆ',
+      loading: 'ಗ್ರಾಮ ಪರಿಚರ್ಯೆ ಲೋಡ್ ಆಗುತ್ತಿದೆ...',
       disclaimer: 'ಈ ಅಪ್ಲಿಕೇಶನ್ ತಪಾಸಣೆ ಮತ್ತು ಜಾಗೃತಿಗೆ ಸಹಾಯ ಮಾಡುತ್ತದೆ. ಇದು ಕ್ಯಾನ್ಸರ್ ರೋಗನಿರ್ಣಯ ಮಾಡುವುದಿಲ್ಲ. ಯಾವಾಗಲೂ ವೈದ್ಯರ ಸಲಹೆ ಪಡೆಯಿರಿ.',
       version: 'ಆವೃತ್ತಿ ೧.೦.೦ · ಆಫ್‌ಲೈನ್ ಸಿದ್ಧ PWA',
     },
@@ -370,7 +370,7 @@ const translations = {
     // Onboarding
     onboarding: {
       slide1: {
-        title: 'ಮುಖರಕ್ಷಾಗೆ ಸ್ವಾಗತ',
+        title: 'ಗ್ರಾಮ ಪರಿಚರ್ಯೆಗೆ ಸ್ವಾಗತ',
         subtitle: 'ಕರ್ನಾಟಕದಲ್ಲಿ ಬಾಯಿ ಕ್ಯಾನ್ಸರ್ ತಪಾಸಣೆ ಮತ್ತು ಜಾಗೃತಿಗಾಗಿ ನಿಮ್ಮ ವಿಶ್ವಾಸಾರ್ಹ ಮೊಬೈಲ್ ಸಹಯೋಗಿ.',
       },
       slide2: {
@@ -388,7 +388,7 @@ const translations = {
       slideLabel: 'ಸ್ಲೈಡ್ {n}',
       disclaimer: 'ಆಶಾ/ಎಎನ್ಎಂ ಕಾರ್ಯಕರ್ತರಿಗೆ ಜಾಗೃತಿ ಸಾಧನ. ವೈದ್ಯಕೀಯ ರೋಗನಿರ್ಣಯಕ್ಕೆ ಬದಲಿಯಲ್ಲ.',
     },
-    onboardingTitle1: 'ಮುಖರಕ್ಷಾಗೆ ಸ್ವಾಗತ',
+    onboardingTitle1: 'ಗ್ರಾಮ ಪರಿಚರ್ಯೆಗೆ ಸ್ವಾಗತ',
     onboardingDesc1: 'ಕರ್ನಾಟಕದಲ್ಲಿ ಬಾಯಿ ಕ್ಯಾನ್ಸರ್ ತಪಾಸಣೆ ಮತ್ತು ಜಾಗೃತಿಗಾಗಿ ನಿಮ್ಮ ವಿಶ್ವಾಸಾರ್ಹ ಸಹಯೋಗಿ.',
     onboardingTitle2: 'ಬೇಗ ಪತ್ತೆ ಮಾಡಿ, ಜೀವ ಉಳಿಸಿ',
     onboardingDesc2: 'ಆಶಾ/ಎಎನ್ಎಂ ಕಾರ್ಯಕರ್ತರಿಗೆ, ದಂತ ವೈದ್ಯರಿಗೆ ಮತ್ತು ಸಾರ್ವಜನಿಕರಿಗೆ ಸರಳ ತಪಾಸಣೆ.',
@@ -547,7 +547,7 @@ const translations = {
     selectSite: 'ಸ್ಥಳ ಆಯ್ಕೆ ಮಾಡಿ',
 
     // Child Care
-    childCareTitle: 'ಗ್ರಾಮ ಸೇತು',
+    childCareTitle: 'ಮಕ್ಕಳ ಪೌಷ್ಟಿಕ ಆರೈಕೆ',
     childCareSubtitle: 'ಮಕ್ಕಳ ಮತ್ತು ಪೌಷ್ಟಿಕ ಆರೈಕೆ ಪ್ರಶ್ನಾವಳಿ',
     childName: 'ಮಗುವಿನ ಹೆಸರು',
     caregiverName: 'ಪಾಲಕರ ಹೆಸರು',
@@ -609,7 +609,7 @@ const translations = {
     keepLearning: 'ಇನ್ನಷ್ಟು ಕಲಿಯಿರಿ!',
 
     // Chatbot
-    chatTitle: 'ಮುಖರಕ್ಷಾ ಕೇಳಿ',
+    chatTitle: 'ಗ್ರಾಮ ಪರಿಚರ್ಯೆಯನ್ನು ಕೇಳಿ',
     chatPlaceholder: 'ಬಾಯಿ ಆರೋಗ್ಯದ ಬಗ್ಗೆ ಪ್ರಶ್ನೆ ಕೇಳಿ...',
     chatSend: 'ಕಳುಹಿಸಿ',
     chatDisclaimer: 'AI ಉತ್ತರಗಳು ಜಾಗೃತಿಗಾಗಿ ಮಾತ್ರ. ಯಾವಾಗಲೂ ಅರ್ಹ ವೈದ್ಯರ ಸಲಹೆ ಪಡೆಯಿರಿ.',
@@ -634,7 +634,7 @@ const translations = {
     restoreData: 'ಡೇಟಾ ಮರುಸ್ಥಾಪನೆ (JSON)',
     facilities: 'ಹತ್ತಿರದ ಆಸ್ಪತ್ರೆಗಳು',
     addFacility: 'ಆಸ್ಪತ್ರೆ ಸೇರಿಸಿ',
-    about: 'ಮುಖರಕ್ಷಾ ಬಗ್ಗೆ',
+    about: 'ಗ್ರಾಮ ಪರಿಚರ್ಯೆ ಬಗ್ಗೆ',
     version: 'ಆವೃತ್ತಿ 1.0.0',
 
     // Dashboard

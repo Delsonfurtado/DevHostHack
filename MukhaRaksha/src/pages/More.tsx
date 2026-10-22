@@ -129,7 +129,7 @@ export default function More() {
     const csv = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
     const link = document.createElement('a');
     link.href = encodeURI(csv);
-    link.download = `MukhaRaksha_Export_${Date.now()}.csv`;
+    link.download = `Gram_Paricharya_Export_${Date.now()}.csv`;
     link.click();
     showToast('Cases exported to CSV', 'success');
   };
@@ -404,7 +404,7 @@ export default function More() {
         {/* About App Footer */}
         <div className="text-center text-xs text-gray-400 py-3 space-y-1">
           <p className="font-bold text-gray-600 dark:text-gray-300">
-            {t('appName')} (ಮುಖರಕ್ಷಾ) • {t('version')}
+            {t('appName')} • {t('version')}
           </p>
           <p>Built for ASHA/ANM workers and Karnataka community dental healthcare.</p>
         </div>

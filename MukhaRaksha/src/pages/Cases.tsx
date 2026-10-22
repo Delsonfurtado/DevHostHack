@@ -232,7 +232,7 @@ export default function Cases() {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `MukhaRaksha_Cases_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute('download', `Gram_Paricharya_Cases_${new Date().toISOString().slice(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -250,7 +250,7 @@ export default function Cases() {
     const jsonStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(data, null, 2));
     const link = document.createElement('a');
     link.setAttribute('href', jsonStr);
-    link.setAttribute('download', `MukhaRaksha_Backup_${new Date().toISOString().slice(0, 10)}.json`);
+    link.setAttribute('download', `Gram_Paricharya_Backup_${new Date().toISOString().slice(0, 10)}.json`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

@@ -1,8 +1,8 @@
-# MukhaRaksha (ಮುಖರಕ್ಷಾ)
+# Gram Paricharya (ಗ್ರಾಮ ಪರಿಚರ್ಯೆ)
 
-**Oral Cancer Screening, Awareness & Referral-Tracking PWA for Karnataka, India**
+**Community Health Screening, Child Nutrition & Referral-Tracking PWA for Karnataka, India**
 
-A complete, production-quality, fully **client-side** Progressive Web App designed for ASHA/ANM community health workers, dental clinics, and the public in Karnataka.
+A fully **client-side** Progressive Web App designed for ASHA/ANM community health workers, caregivers, clinics, and the public in Karnataka.
 
 ---
 
@@ -13,7 +13,7 @@ A complete, production-quality, fully **client-side** Progressive Web App design
 | **A – Smart Capture Guard** | Camera capture with on-device blur/lighting/oral-content quality checks using Canvas |
 | **B – Screening Pathway** | 5-step wizard: patient details → history → symptoms → oral findings → explainable results |
 | **C – Referral Tracker** | 7-stage case management (Kanban + list), overdue alerts, case timeline, PDF export |
-| **D – Child Care (ಪುಟ್ಟ ನಗು)** | Age-banded oral guidance for 0–12 years: what to give, avoid, dentist alerts |
+| **D – Gram Paricharya Child & Nutrition Care** | Age-banded child nutrition questionnaire and food guidance in English, Kannada and Hindi |
 | **E – Learn Hub** | Animated slide explainer with Web Speech API narration, quick quiz with badges |
 | **F – Self-Exam Timeline** | Monthly guided self-exam with photo comparison slider and change-noticed alerts |
 | **G – Habit Coach** | Daily tobacco/areca/alcohol log, quit streaks, money saved, motivational messages |

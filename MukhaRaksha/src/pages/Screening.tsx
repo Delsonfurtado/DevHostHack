@@ -236,7 +236,7 @@ export default function Screening() {
       const doc = new jsPDF();
       doc.setFontSize(18);
       doc.setTextColor(13, 148, 136); // Teal
-      doc.text('MukhaRaksha / ಮುಖರಕ್ಷಾ', 14, 20);
+      doc.text('Gram Paricharya / ಗ್ರಾಮ ಪರಿಚರ್ಯೆ', 14, 20);
 
       doc.setFontSize(11);
       doc.setTextColor(100);
@@ -296,12 +296,12 @@ export default function Screening() {
       doc.setFontSize(8);
       doc.setTextColor(120);
       doc.text(
-        'Disclaimer: MukhaRaksha is a screening & awareness aid. It does not provide medical diagnosis.',
+        'Disclaimer: Gram Paricharya is a screening & awareness aid. It does not provide medical diagnosis.',
         14,
         finalY + 10
       );
 
-      doc.save(`MukhaRaksha_Screening_${patientData.name.replace(/\s+/g, '_')}.pdf`);
+      doc.save(`Gram_Paricharya_Screening_${patientData.name.replace(/\s+/g, '_')}.pdf`);
       showToast(lang === 'kn' ? 'PDF ಡೌನ್‌ಲೋಡ್ ಆಗಿದೆ' : 'PDF generated successfully', 'success');
     } catch (e) {
       console.error(e);

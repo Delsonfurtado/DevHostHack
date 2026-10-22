@@ -40,12 +40,12 @@ const DESKTOP_NAV_ITEMS = [
   { path: '/cases', icon: FileText, labelEn: 'Cases & Referral Tracker', labelKn: 'ಪ್ರಕರಣಗಳ ನಿಗಾ' },
   { path: '/capture', icon: Camera, labelEn: 'Smart Capture Guard', labelKn: 'ಕ್ಯಾಮರಾ ಗಾರ್ಡ್' },
   { path: '/dashboard', icon: BarChart3, labelEn: 'Analytics Dashboard', labelKn: 'ವಿಶ್ಲೇಷಣಾ ಪಟ್ಟಿ' },
-  { path: '/child-care', icon: Baby, labelEn: 'Little Smiles (Pediatric)', labelKn: 'ಪುಟ್ಟ ನಗು (ಮಕ್ಕಳು)' },
+  { path: '/child-care', icon: Baby, labelEn: 'Child & Nutrition Care', labelKn: 'ಮಕ್ಕಳ ಪೌಷ್ಟಿಕ ಆರೈಕೆ' },
   { path: '/learn', icon: BookOpen, labelEn: 'Learn Hub & Explainer', labelKn: 'ಕಲಿಯಿರಿ ಮತ್ತು ವೀಡಿಯೋ' },
   { path: '/self-exam', icon: Eye, labelEn: 'Self-Exam Timeline', labelKn: 'ಮಾಸಿಕ ಸ್ವ-ಪರೀಕ್ಷೆ' },
   { path: '/habit-coach', icon: Flame, labelEn: 'Habit Coach & Cessation', labelKn: 'ತಂಬಾಕು ಮುಕ್ತಿ ಕೋಚ್' },
   { path: '/camp', icon: Tent, labelEn: 'Village Camp Mode', labelKn: 'ಆರೋಗ್ಯ ಶಿಬಿರ' },
-  { path: '/chat', icon: MessageSquare, labelEn: 'Ask MukhaRaksha AI', labelKn: 'AI ಸಹಾಯಕ' },
+  { path: '/chat', icon: MessageSquare, labelEn: 'Ask Gram Paricharya AI', labelKn: 'AI ಸಹಾಯಕ' },
   { path: '/more', icon: MoreHorizontal, labelEn: 'Settings & Directory', labelKn: 'ಸೆಟ್ಟಿಂಗ್ಸ್ & ಆಸ್ಪತ್ರೆಗಳು' },
 ];
 
@@ -74,7 +74,7 @@ export default function Layout({ children, title, showDisclaimer = false, header
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
           <span className="font-semibold text-slate-200 hidden sm:inline">
-            MukhaRaksha (ಮುಖರಕ್ಷಾ) • Karnataka Oral Health Portal
+            Gram Paricharya (ಗ್ರಾಮ ಪರಿಚರ್ಯೆ) • Karnataka Community Health Portal
           </span>
           <span className="text-[10px] px-1.5 py-0.5 rounded bg-teal-900/60 text-teal-300 font-mono">
             100% Client-Side PWA
@@ -136,11 +136,11 @@ export default function Layout({ children, title, showDisclaimer = false, header
             <header className="pt-7 pb-2.5 px-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between shrink-0 z-40">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-teal-600 to-teal-500 text-white flex items-center justify-center font-bold text-sm shadow-xs">
-                  ಮ
+                  ಗ
                 </div>
                 <div>
                   <h1 className="text-xs font-bold text-slate-900 dark:text-white leading-tight">
-                    {title || (lang === 'kn' ? 'ಮುಖರಕ್ಷಾ' : 'MukhaRaksha')}
+                    {title || (lang === 'kn' ? 'ಗ್ರಾಮ ಪರಿಚರ್ಯೆ' : 'Gram Paricharya')}
                   </h1>
                   <span className="text-[9px] text-teal-600 dark:text-teal-400 font-semibold">
                     {isHealthWorker ? 'ASHA Mode' : 'Citizen Mode'}
@@ -203,19 +203,19 @@ export default function Layout({ children, title, showDisclaimer = false, header
             {/* Sidebar Brand Header */}
             <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-teal-600 via-teal-500 to-emerald-400 flex items-center justify-center text-white font-black text-lg shadow-sm shadow-teal-500/20">
-                ಮ
+                ಗ
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
                   <h2 className="text-sm font-extrabold text-slate-900 dark:text-white tracking-tight">
-                    MukhaRaksha
+                    Gram Paricharya
                   </h2>
                   <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 border border-teal-200/60 dark:border-teal-800/60">
-                    ಮುಖರಕ್ಷಾ
+                    ಗ್ರಾಮ ಪರಿಚರ್ಯೆ
                   </span>
                 </div>
                 <p className="text-[10px] text-slate-400 font-medium truncate">
-                  Karnataka Oral Health & Oncology
+                  Community Health & Nutrition Care
                 </p>
               </div>
             </div>
@@ -294,16 +294,16 @@ export default function Layout({ children, title, showDisclaimer = false, header
                 {/* Mobile Hamburger / Logo */}
                 <div className={`${isForcedDesktop ? 'hidden' : 'md:hidden'} flex items-center gap-2`}>
                   <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-teal-600 to-teal-500 text-white flex items-center justify-center font-bold text-sm shadow-xs">
-                    ಮ
+                    ಗ
                   </div>
                 </div>
 
                 <div>
                   <h1 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white leading-tight">
-                    {title || (lang === 'kn' ? 'ಮುಖರಕ್ಷಾ' : 'MukhaRaksha')}
+                    {title || (lang === 'kn' ? 'ಗ್ರಾಮ ಪರಿಚರ್ಯೆ' : 'Gram Paricharya')}
                   </h1>
                   <p className="text-xs text-slate-400 hidden sm:block">
-                    {lang === 'kn' ? 'ಕರ್ನಾಟಕ ಬಾಯಿ ಕ್ಯಾನ್ಸರ್ ತಪಾಸಣೆ ಪೋರ್ಟಲ್' : 'Karnataka Community Oral Health & Early Detection Portal'}
+                    {lang === 'kn' ? 'ಕರ್ನಾಟಕ ಸಮುದಾಯ ಆರೋಗ್ಯ ಮತ್ತು ಪೌಷ್ಟಿಕ ಆರೈಕೆ' : 'Karnataka Community Health & Nutrition Care'}
                   </p>
                 </div>
               </div>

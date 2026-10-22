@@ -1,4 +1,4 @@
-// Core data models for MukhaRaksha
+// Core data models for Gram Paricharya
 
 export type Language = 'en' | 'kn';
 export type UserRole = 'health_worker' | 'individual';

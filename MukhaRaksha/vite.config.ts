@@ -12,8 +12,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
       manifest: {
-        name: 'MukhaRaksha - ಮುಖರಕ್ಷಾ',
-        short_name: 'MukhaRaksha',
+        name: 'Gram Paricharya - ಗ್ರಾಮ ಪರಿಚರ್ಯೆ',
+        short_name: 'Gram Paricharya',
         description: 'Oral cancer screening, awareness and referral-tracking app for community health workers in Karnataka',
         theme_color: '#0d9488',
         background_color: '#ffffff',

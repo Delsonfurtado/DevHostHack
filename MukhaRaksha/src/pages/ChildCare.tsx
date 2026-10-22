@@ -305,7 +305,7 @@ export default function ChildCare() {
 
       await db.childScreenings.add(newRec);
       setSubmitted(true);
-      showToast('Gram Sethu child nutrition guidance saved.', 'success');
+      showToast('Gram Paricharya child nutrition guidance saved.', 'success');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
       console.error(err);
@@ -333,7 +333,7 @@ export default function ChildCare() {
             text={
               lang === 'kn'
                 ? 'ಗ್ರಾಮ ಸೇತು - ಮಕ್ಕಳ ಮತ್ತು ಪೌಷ್ಟಿಕ ಆರೈಕೆ ಪ್ರಶ್ನಾವಳಿ.'
-                : 'Gram Sethu - Child & Nutrition Care Questionnaire.'
+                : 'Gram Paricharya - Child & Nutrition Care Questionnaire.'
             }
           />
         </div>
@@ -371,7 +371,7 @@ export default function ChildCare() {
               {selectQuestion('growthConcern', "13. Has a health worker raised concerns about the child's weight or growth?", [{ value: 'no', label: 'No' }, { value: 'yes', label: 'Yes' }, { value: 'not_sure', label: 'Not sure' }])}
             </Card>
             <Card>{selectQuestion('foodGuidanceLanguage', 'Preferred language for the food guidance', [{ value: 'en', label: 'English' }, { value: 'kn', label: 'Kannada' }, { value: 'hi', label: 'Hindi' }])}</Card>
-            <button type="submit" className="btn-primary w-full py-3 text-sm shadow-md flex items-center justify-center gap-2"><Sparkles size={16} />Generate Gram Sethu Guidance</button>
+            <button type="submit" className="btn-primary w-full py-3 text-sm shadow-md flex items-center justify-center gap-2"><Sparkles size={16} />Generate Gram Paricharya Guidance</button>
           </form>
         ) : (
           /* GUIDANCE VIEW */
